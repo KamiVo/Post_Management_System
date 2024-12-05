@@ -44,4 +44,4 @@ A Java-based application for managing users and posts, including functionalities
 - `showPosts()`: Displays all posts.
 
 ## License
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](LICENSE).
