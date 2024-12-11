@@ -34,7 +34,7 @@ public class LoginRegisterGUI extends JFrame {
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/user_management", "root", "K@miVo_02825");
         } catch (SQLException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database connection failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -206,12 +206,17 @@ public class LoginRegisterGUI extends JFrame {
             ResultSet resultSet = statement.executeQuery();
             return resultSet.next();
         } catch (SQLException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Authentication failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
 
     private boolean registerUser(String identifier, String password) {
+        if (identifier == null || identifier.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Username/Email and Password cannot be blank");
+            return false;
+        }
+
         try {
             String checkQuery;
             if (identifier.contains("@")) {
@@ -224,7 +229,8 @@ public class LoginRegisterGUI extends JFrame {
             ResultSet checkResultSet = checkStatement.executeQuery();
 
             if (checkResultSet.next()) {
-                return false; // User already exists
+                JOptionPane.showMessageDialog(this, "Username or Email already exists");
+                return false;
             }
 
             String insertQuery;
@@ -245,17 +251,12 @@ public class LoginRegisterGUI extends JFrame {
             }
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Registration failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new LoginRegisterGUI().setVisible(true);
-            }
-        });
+        SwingUtilities.invokeLater(() -> new LoginRegisterGUI().setVisible(true));
     }
 }
