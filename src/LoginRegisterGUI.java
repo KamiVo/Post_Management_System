@@ -27,7 +27,6 @@ public class LoginRegisterGUI extends JFrame {
         add(mainPanel);
         cardLayout.show(mainPanel, "Login");
 
-        // Initialize database connection
         initializeDBConnection();
     }
 
@@ -109,7 +108,7 @@ public class LoginRegisterGUI extends JFrame {
     }
 
     private JPanel createRegisterPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel jPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
@@ -157,40 +156,40 @@ public class LoginRegisterGUI extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
-        panel.add(userLabel, gbc);
+        jPanel.add(userLabel, gbc);
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        panel.add(userText, gbc);
+        jPanel.add(userText, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.EAST;
-        panel.add(passLabel, gbc);
+        jPanel.add(passLabel, gbc);
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        panel.add(passText, gbc);
+        jPanel.add(passText, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.EAST;
-        panel.add(confirmPassLabel, gbc);
+        jPanel.add(confirmPassLabel, gbc);
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        panel.add(confirmPassText, gbc);
+        jPanel.add(confirmPassText, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(registerButton, gbc);
+        jPanel.add(registerButton, gbc);
 
         gbc.gridy = 4;
-        panel.add(backButton, gbc);
+        jPanel.add(backButton, gbc);
 
-        return panel;
+        return jPanel;
     }
 
     private boolean authenticateUser(String identifier, String password) {
