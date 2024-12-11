@@ -5,13 +5,13 @@ import java.awt.event.ActionListener;
 import java.sql.*;
 
 public class LoginRegisterGUI extends JFrame {
-    private CardLayout cardLayout;
-    private JPanel mainPanel;
+    private final CardLayout cardLayout;
+    private final JPanel mainPanel;
     private Connection connection;
 
     public LoginRegisterGUI() {
         setTitle("User and Post Management System");
-        setSize(400, 300);
+        setSize(1600, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -40,13 +40,24 @@ public class LoginRegisterGUI extends JFrame {
     }
 
     private JPanel createLoginPanel() {
-        JPanel panel = new JPanel(new GridLayout(3, 2));
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+
         JLabel userLabel = new JLabel("Username or Email:");
-        JTextField userText = new JTextField();
+        userLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        JTextField userText = new JTextField(18);
+
         JLabel passLabel = new JLabel("Password:");
-        JPasswordField passText = new JPasswordField();
+        passLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        JPasswordField passText = new JPasswordField(18);
+
         JButton loginButton = new JButton("Login");
         JButton registerButton = new JButton("Register");
+
+        Dimension buttonSize = new Dimension(150, 30);
+        loginButton.setPreferredSize(buttonSize);
+        registerButton.setPreferredSize(buttonSize);
 
         loginButton.addActionListener(new ActionListener() {
             @Override
@@ -67,26 +78,59 @@ public class LoginRegisterGUI extends JFrame {
             }
         });
 
-        panel.add(userLabel);
-        panel.add(userText);
-        panel.add(passLabel);
-        panel.add(passText);
-        panel.add(loginButton);
-        panel.add(registerButton);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(userLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(userText, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(passLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(passText, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(loginButton, gbc);
+
+        gbc.gridy = 3;
+        panel.add(registerButton, gbc);
 
         return panel;
     }
 
     private JPanel createRegisterPanel() {
-        JPanel panel = new JPanel(new GridLayout(4, 2));
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+
         JLabel userLabel = new JLabel("Username or Email:");
-        JTextField userText = new JTextField();
+        userLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        JTextField userText = new JTextField(20);
+
         JLabel passLabel = new JLabel("Password:");
-        JPasswordField passText = new JPasswordField();
+        passLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        JPasswordField passText = new JPasswordField(20);
+
         JLabel confirmPassLabel = new JLabel("Confirm Password:");
-        JPasswordField confirmPassText = new JPasswordField();
+        confirmPassLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        JPasswordField confirmPassText = new JPasswordField(20);
+
         JButton registerButton = new JButton("Register");
         JButton backButton = new JButton("Back");
+
+        Dimension buttonSize = new Dimension(150, 30);
+        registerButton.setPreferredSize(buttonSize);
+        backButton.setPreferredSize(buttonSize);
 
         registerButton.addActionListener(new ActionListener() {
             @Override
@@ -110,14 +154,41 @@ public class LoginRegisterGUI extends JFrame {
             }
         });
 
-        panel.add(userLabel);
-        panel.add(userText);
-        panel.add(passLabel);
-        panel.add(passText);
-        panel.add(confirmPassLabel);
-        panel.add(confirmPassText);
-        panel.add(registerButton);
-        panel.add(backButton);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(userLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(userText, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(passLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(passText, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(confirmPassLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(confirmPassText, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(registerButton, gbc);
+
+        gbc.gridy = 4;
+        panel.add(backButton, gbc);
 
         return panel;
     }
@@ -153,21 +224,27 @@ public class LoginRegisterGUI extends JFrame {
             checkStatement.setString(1, identifier);
             ResultSet checkResultSet = checkStatement.executeQuery();
 
-            if(checkResultSet.next()) {
-                return false;
-            } else {
-                String insertQuery;
-                if (identifier.contains("@")) {
-                    insertQuery = "INSERT INTO loginregister (email, password) VALUES (?, ?)";
-                } else {
-                    insertQuery = "INSERT INTO loginregister (username, password) VALUES (?, ?)";
-                }
+            if (checkResultSet.next()) {
+                return false; // User already exists
+            }
+
+            String insertQuery;
+            if (identifier.contains("@")) {
+                insertQuery = "INSERT INTO loginregister(email, username, password) VALUES(?, ?, ?)";
                 PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
                 insertStatement.setString(1, identifier);
-                insertStatement.setString(2, password);
+                insertStatement.setString(2, ""); // Set username to empty string
+                insertStatement.setString(3, password);
                 insertStatement.executeUpdate();
-                return true;
+            } else {
+                insertQuery = "INSERT INTO loginregister(username, email, password) VALUES(?, ?, ?)";
+                PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
+                insertStatement.setString(1, identifier);
+                insertStatement.setString(2, ""); // Set email to empty string
+                insertStatement.setString(3, password);
+                insertStatement.executeUpdate();
             }
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
