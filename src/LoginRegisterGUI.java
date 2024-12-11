@@ -41,7 +41,7 @@ public class LoginRegisterGUI extends JFrame {
 
     private JPanel createLoginPanel() {
         JPanel panel = new JPanel(new GridLayout(3, 2));
-        JLabel userLabel = new JLabel("Username:");
+        JLabel userLabel = new JLabel("Username or Email:");
         JTextField userText = new JTextField();
         JLabel passLabel = new JLabel("Password:");
         JPasswordField passText = new JPasswordField();
@@ -79,7 +79,7 @@ public class LoginRegisterGUI extends JFrame {
 
     private JPanel createRegisterPanel() {
         JPanel panel = new JPanel(new GridLayout(4, 2));
-        JLabel userLabel = new JLabel("Username:");
+        JLabel userLabel = new JLabel("Username or Email:");
         JTextField userText = new JTextField();
         JLabel passLabel = new JLabel("Password:");
         JPasswordField passText = new JPasswordField();
@@ -95,7 +95,7 @@ public class LoginRegisterGUI extends JFrame {
                     if (registerUser(userText.getText(), new String(passText.getPassword()))) {
                         cardLayout.show(mainPanel, "Login");
                     } else {
-                        JOptionPane.showMessageDialog(null, "Username already exists");
+                        JOptionPane.showMessageDialog(null, "Username or Email already exists");
                     }
                 } else {
                     JOptionPane.showMessageDialog(null, "Passwords do not match");
@@ -122,11 +122,16 @@ public class LoginRegisterGUI extends JFrame {
         return panel;
     }
 
-    private boolean authenticateUser(String username, String password) {
+    private boolean authenticateUser(String identifier, String password) {
         try {
-            String query = "SELECT * FROM users WHERE username = ? AND password = ?";
+            String query;
+            if (identifier.contains("@")) {
+                query = "SELECT * FROM loginregister WHERE email = ? AND password = ?";
+            } else {
+                query = "SELECT * FROM loginregister WHERE username = ? AND password = ?";
+            }
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, username);
+            statement.setString(1, identifier);
             statement.setString(2, password);
             ResultSet resultSet = statement.executeQuery();
             return resultSet.next();
@@ -136,14 +141,33 @@ public class LoginRegisterGUI extends JFrame {
         }
     }
 
-    private boolean registerUser(String username, String password) {
+    private boolean registerUser(String identifier, String password) {
         try {
-            String query = "INSERT INTO users (username, password) VALUES (?, ?)";
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, username);
-            statement.setString(2, password);
-            statement.executeUpdate();
-            return true;
+            String checkQuery;
+            if (identifier.contains("@")) {
+                checkQuery = "SELECT * FROM loginregister WHERE email = ?";
+            } else {
+                checkQuery = "SELECT * FROM loginregister WHERE username = ?";
+            }
+            PreparedStatement checkStatement = connection.prepareStatement(checkQuery);
+            checkStatement.setString(1, identifier);
+            ResultSet checkResultSet = checkStatement.executeQuery();
+
+            if(checkResultSet.next()) {
+                return false;
+            } else {
+                String insertQuery;
+                if (identifier.contains("@")) {
+                    insertQuery = "INSERT INTO loginregister (email, password) VALUES (?, ?)";
+                } else {
+                    insertQuery = "INSERT INTO loginregister (username, password) VALUES (?, ?)";
+                }
+                PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
+                insertStatement.setString(1, identifier);
+                insertStatement.setString(2, password);
+                insertStatement.executeUpdate();
+                return true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
