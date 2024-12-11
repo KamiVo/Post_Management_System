@@ -4,6 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
 
+// Custom exception for formula errors
+class FormulaException extends Exception {
+    public FormulaException(String message) {
+        super(message);
+    }
+}
+
 public class LoginRegisterGUI extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
@@ -134,14 +141,16 @@ public class LoginRegisterGUI extends JFrame {
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (new String(passText.getPassword()).equals(new String(confirmPassText.getPassword()))) {
-                    if (registerUser(userText.getText(), new String(passText.getPassword()))) {
-                        cardLayout.show(mainPanel, "Login");
+                try {
+                    if (new String(passText.getPassword()).equals(new String(confirmPassText.getPassword()))) {
+                        if (registerUser(userText.getText(), new String(passText.getPassword()))) {
+                            cardLayout.show(mainPanel, "Login");
+                        }
                     } else {
-                        JOptionPane.showMessageDialog(null, "Username or Email already exists");
+                        JOptionPane.showMessageDialog(null, "Passwords do not match");
                     }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Passwords do not match");
+                } catch (FormulaException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
                 }
             }
         });
@@ -211,10 +220,9 @@ public class LoginRegisterGUI extends JFrame {
         }
     }
 
-    private boolean registerUser(String identifier, String password) {
+    private boolean registerUser(String identifier, String password) throws FormulaException {
         if (identifier == null || identifier.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Username/Email and Password cannot be blank");
-            return false;
+            throw new FormulaException("Username/Email and Password cannot be blank");
         }
 
         try {
@@ -230,7 +238,7 @@ public class LoginRegisterGUI extends JFrame {
 
             if (checkResultSet.next()) {
                 JOptionPane.showMessageDialog(this, "Username or Email already exists");
-                return false;
+                return false; // User already exists
             }
 
             String insertQuery;
