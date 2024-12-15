@@ -3,113 +3,87 @@ import GUI.ManageUsersGUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class MainDashboardGUI extends JFrame {
 
     public MainDashboardGUI(String username) {
-
         setTitle("User and Post Management System");
         setSize(1600, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(null);
         setLocationRelativeTo(null);
+        setBackground(Color.BLACK);
 
         JPanel topPanel = getTopPanel(username);
-        add(topPanel, BorderLayout.NORTH);
+        topPanel.setBounds(50, 50, 1500, 100);
+        add(topPanel);
 
-        JPanel midPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        JPanel topEastPanel = getLogoutButtonPanel();
+        topEastPanel.setBounds(20, 10, 1500, 100);
+        add(topEastPanel);
 
-        JPanel topMidPanel = getTopMidPanel();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        midPanel.add(topMidPanel, gbc);
-
-        JButton mnUserBtn = new JButton("Manage Users");
-        JButton mnPostBtn = new JButton("Manage Posts");
-
-        mnUserBtn.setPreferredSize(new Dimension(200, 50));
-        mnPostBtn.setPreferredSize(new Dimension(200, 50));
-
-//        mnUserBtn.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                new ManageUsersGUI().setVisible(true);
-//                dispose();
-//            }
-//        });
-//
-//        mnPostBtn.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                new ManagePostsGUI().setVisible(true);
-//                dispose();
-//            }
-//        });
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(mnUserBtn);
-        buttonPanel.add(mnPostBtn);
-
-        gbc.gridy = 1;
-        midPanel.add(buttonPanel, gbc);
-        add(midPanel, BorderLayout.CENTER);
+        JPanel midPanel = getMidPanel();
+        midPanel.setBounds(50, 200, 1500, 600);
+        add(midPanel);
     }
 
     private JPanel getTopPanel(String username) {
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(Color.LIGHT_GRAY);
-        topPanel.setPreferredSize(new Dimension(1600, 100));
+        JPanel topPanel = new JPanel(null);
+        topPanel.setPreferredSize(new Dimension(1500, 100));
 
-        JPanel jPanel = new JPanel();
-        jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.Y_AXIS));
-        jPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel mainLabel = new JLabel("Welcome " + username + " to the User and Post Management System", SwingConstants.CENTER);
+        mainLabel.setFont(new Font("Arial", Font.BOLD, 30));
+        mainLabel.setBounds(100, 20, 1300, 60);
 
-        JLabel userLabel = new JLabel("Welcome, " + username);
-        userLabel.setFont(new Font("Arial", Font.BOLD, 40));
-        userLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JPanel labelsPanel = new JPanel(null);
+        labelsPanel.setBounds(0, 0, 1500, 100);
+        labelsPanel.add(mainLabel);
 
-        JLabel appLabel = new JLabel("User and Post Management System", SwingConstants.CENTER);
-        appLabel.setFont(new Font("Arial", Font.PLAIN, 35));
-        appLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        topPanel.add(labelsPanel);
+//        topPanel.add(getLogoutButtonPanel(), BorderLayout.EAST);
 
-        jPanel.add(userLabel);
-        jPanel.add(appLabel);
-
-        topPanel.add(jPanel, BorderLayout.CENTER);
-        topPanel.add(getLogoutButtonPanel(), BorderLayout.EAST);
         return topPanel;
     }
 
-    private static JPanel getTopMidPanel(){
+    private JPanel getMidPanel() {
+        JPanel midPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.CENTER;
+
         JPanel topMidPanel = new JPanel();
         topMidPanel.setLayout(new BoxLayout(topMidPanel, BoxLayout.Y_AXIS));
-        topMidPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel midLabel = new JLabel("Select an option to manage users or posts", SwingConstants.CENTER);
+        JLabel midLabel = new JLabel("Select an option to manage users or posts", JLabel.CENTER);
         midLabel.setFont(new Font("Arial", Font.PLAIN, 30));
-        midLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         topMidPanel.add(midLabel);
-        return topMidPanel;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        midPanel.add(topMidPanel, gbc);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(createButton("Manage Users", 200, 50));
+        buttonPanel.add(createButton("Manage Posts", 200, 50));
+
+        gbc.gridy = 1;
+        midPanel.add(buttonPanel, gbc);
+
+        return midPanel;
     }
 
-    private JPanel getLogoutButtonPanel(){
-        JPanel logoutButtonPanel = new JPanel();
-        logoutButtonPanel.setLayout(new BoxLayout(logoutButtonPanel, BoxLayout.Y_AXIS));
-        logoutButtonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+    private JButton createButton(String text, int width, int height) {
+        JButton button = new JButton(text);
+        button.setPreferredSize(new Dimension(width, height));
+        return button;
+    }
 
-        JButton logoutButton = new JButton("Logout");
-        logoutButton.setPreferredSize(new Dimension(150, 30));
-
+    private JPanel getLogoutButtonPanel() {
+        JPanel logoutButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton logoutButton = createButton("Logout", 80, 30);
         logoutButton.addActionListener(e -> {
             new LoginRegisterGUI().setVisible(true);
             dispose();
         });
-
         logoutButtonPanel.add(logoutButton);
         return logoutButtonPanel;
     }
