@@ -1,3 +1,5 @@
+package Main;
+
 import GUI.ManagePostsGUI;
 import GUI.ManageUsersGUI;
 
@@ -84,7 +86,7 @@ public class MainDashboardGUI extends JFrame {
         JButton button = new JButton("Manage Posts");
         button.setPreferredSize(new Dimension(200, 50));
         button.addActionListener(e -> {
-            new ManagePostsGUI("User").setVisible(true);
+            new ManagePostsGUI("Posts").setVisible(true);
             dispose();
         });
         return button;

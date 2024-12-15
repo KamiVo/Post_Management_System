@@ -1,3 +1,5 @@
+package Main;
+
 public class Post {
     private final int id;
     private String title;

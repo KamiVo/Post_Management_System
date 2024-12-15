@@ -1,3 +1,5 @@
+package Main;
+
 public class User {
     private final int id;
     private String name;

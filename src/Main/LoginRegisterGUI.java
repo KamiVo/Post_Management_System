@@ -1,6 +1,7 @@
+package Main;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
 import java.sql.*;
 
 class FormulaException extends Exception {
@@ -10,16 +11,15 @@ class FormulaException extends Exception {
 }
 
 public class LoginRegisterGUI extends JFrame {
+    public static Connection connection;
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
-    private Connection connection;
 
     public LoginRegisterGUI() {
         setTitle("User and Post Management System");
         setSize(1600, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setBackground(Color.BLACK);
 
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
@@ -33,7 +33,7 @@ public class LoginRegisterGUI extends JFrame {
         initializeDBConnection();
     }
 
-    private void initializeDBConnection() {
+    public void initializeDBConnection() {
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/user_management", "root", "K@miVo_02825");
         } catch (SQLException e) {
