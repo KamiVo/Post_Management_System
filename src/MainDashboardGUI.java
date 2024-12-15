@@ -40,7 +40,6 @@ public class MainDashboardGUI extends JFrame {
         labelsPanel.add(mainLabel);
 
         topPanel.add(labelsPanel);
-//        topPanel.add(getLogoutButtonPanel(), BorderLayout.EAST);
 
         return topPanel;
     }
@@ -62,13 +61,33 @@ public class MainDashboardGUI extends JFrame {
         midPanel.add(topMidPanel, gbc);
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(createButton("Manage Users", 200, 50));
-        buttonPanel.add(createButton("Manage Posts", 200, 50));
+        buttonPanel.add(mnUserButton());
+        buttonPanel.add(mnPostButton());
 
         gbc.gridy = 1;
         midPanel.add(buttonPanel, gbc);
 
         return midPanel;
+    }
+
+    private JButton mnUserButton(){
+        JButton button = new JButton("Manage Users");
+        button.setPreferredSize(new Dimension(200, 50));
+        button.addActionListener(e -> {
+            new ManageUsersGUI("User").setVisible(true);
+            dispose();
+        });
+        return button;
+    }
+
+    private JButton mnPostButton(){
+        JButton button = new JButton("Manage Posts");
+        button.setPreferredSize(new Dimension(200, 50));
+        button.addActionListener(e -> {
+            new ManagePostsGUI("User").setVisible(true);
+            dispose();
+        });
+        return button;
     }
 
     private JButton createButton(String text, int width, int height) {

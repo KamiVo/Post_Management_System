@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
 import java.sql.*;
 
 class FormulaException extends Exception {
@@ -67,6 +68,14 @@ public class LoginRegisterGUI extends JFrame {
 
         registerButton.addActionListener(e -> cardLayout.show(mainPanel, "Register"));
 
+        passText.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    loginButton.doClick();
+                }
+            }
+        });
+
         addComponentsToPanel(panel, gbc, userLabel, userText, passLabel, passText, loginButton, registerButton);
         return panel;
     }
@@ -95,7 +104,13 @@ public class LoginRegisterGUI extends JFrame {
             try {
                 if (new String(passText.getPassword()).equals(new String(confirmPassText.getPassword()))) {
                     if (registerUser(userText.getText(), new String(passText.getPassword()))) {
-                        cardLayout.show(mainPanel, "Login");
+                        switch (JOptionPane.showConfirmDialog(null, "Registration successful. Do you want to login?", "Success", JOptionPane.YES_NO_OPTION)) {
+                            case JOptionPane.YES_OPTION:
+                                cardLayout.show(mainPanel, "Login");
+                                break;
+                            case JOptionPane.NO_OPTION:
+                                break;
+                        }
                     }
                 } else {
                     JOptionPane.showMessageDialog(null, "Passwords do not match");
