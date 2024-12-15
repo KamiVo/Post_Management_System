@@ -1,10 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.*;
 
-// Custom exception for formula errors
 class FormulaException extends Exception {
     public FormulaException(String message) {
         super(message);
@@ -21,15 +18,13 @@ public class LoginRegisterGUI extends JFrame {
         setSize(1600, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setBackground(Color.BLACK);
 
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
-        JPanel loginPanel = createLoginPanel();
-        JPanel registerPanel = createRegisterPanel();
-
-        mainPanel.add(loginPanel, "Login");
-        mainPanel.add(registerPanel, "Register");
+        mainPanel.add(createLoginPanel(), "Login");
+        mainPanel.add(createRegisterPanel(), "Register");
 
         add(mainPanel);
         cardLayout.show(mainPanel, "Login");
@@ -58,64 +53,26 @@ public class LoginRegisterGUI extends JFrame {
         passLabel.setFont(new Font("Arial", Font.BOLD, 18));
         JPasswordField passText = new JPasswordField(18);
 
-        JButton loginButton = new JButton("Login");
-        JButton registerButton = new JButton("Register");
+        JButton loginButton = createButton("Login", 150, 30);
+        JButton registerButton = createButton("Register", 150, 30);
 
-        Dimension buttonSize = new Dimension(150, 30);
-        loginButton.setPreferredSize(buttonSize);
-        registerButton.setPreferredSize(buttonSize);
-
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (authenticateUser(userText.getText(), new String(passText.getPassword()))) {
-                    new MainDashboardGUI(userText.getText()).setVisible(true);
-                    dispose();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Invalid username or password");
-                }
+        loginButton.addActionListener(e -> {
+            if (authenticateUser(userText.getText(), new String(passText.getPassword()))) {
+                new MainDashboardGUI(userText.getText()).setVisible(true);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(null, "Invalid username or password");
             }
         });
 
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(mainPanel, "Register");
-            }
-        });
+        registerButton.addActionListener(e -> cardLayout.show(mainPanel, "Register"));
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.EAST;
-        panel.add(userLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(userText, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        panel.add(passLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(passText, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(loginButton, gbc);
-
-        gbc.gridy = 3;
-        panel.add(registerButton, gbc);
-
+        addComponentsToPanel(panel, gbc, userLabel, userText, passLabel, passText, loginButton, registerButton);
         return panel;
     }
 
     private JPanel createRegisterPanel() {
-        JPanel jPanel = new JPanel(new GridBagLayout());
+        JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
@@ -131,84 +88,47 @@ public class LoginRegisterGUI extends JFrame {
         confirmPassLabel.setFont(new Font("Arial", Font.BOLD, 18));
         JPasswordField confirmPassText = new JPasswordField(20);
 
-        JButton registerButton = new JButton("Register");
-        JButton backButton = new JButton("Back");
+        JButton registerButton = createButton("Register", 150, 30);
+        JButton backButton = createButton("Back", 150, 30);
 
-        Dimension buttonSize = new Dimension(150, 30);
-        registerButton.setPreferredSize(buttonSize);
-        backButton.setPreferredSize(buttonSize);
-
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    if (new String(passText.getPassword()).equals(new String(confirmPassText.getPassword()))) {
-                        if (registerUser(userText.getText(), new String(passText.getPassword()))) {
-                            cardLayout.show(mainPanel, "Login");
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Passwords do not match");
+        registerButton.addActionListener(e -> {
+            try {
+                if (new String(passText.getPassword()).equals(new String(confirmPassText.getPassword()))) {
+                    if (registerUser(userText.getText(), new String(passText.getPassword()))) {
+                        cardLayout.show(mainPanel, "Login");
                     }
-                } catch (FormulaException ex) {
-                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                } else {
+                    JOptionPane.showMessageDialog(null, "Passwords do not match");
                 }
+            } catch (FormulaException ex) {
+                JOptionPane.showMessageDialog(null, ex.getMessage());
             }
         });
 
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(mainPanel, "Login");
-            }
-        });
+        backButton.addActionListener(e -> cardLayout.show(mainPanel, "Login"));
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.EAST;
-        jPanel.add(userLabel, gbc);
+        addComponentsToPanel(panel, gbc, userLabel, userText, passLabel, passText, confirmPassLabel, confirmPassText, registerButton, backButton);
+        return panel;
+    }
 
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        jPanel.add(userText, gbc);
+    private void addComponentsToPanel(JPanel panel, GridBagConstraints gbc, JComponent... components) {
+        for (int i = 0; i < components.length; i++) {
+            gbc.gridx = i % 2 == 0 ? 0 : 1;
+            gbc.gridy = i / 2;
+            gbc.anchor = i % 2 == 0 ? GridBagConstraints.EAST : GridBagConstraints.WEST;
+            panel.add(components[i], gbc);
+        }
+    }
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        jPanel.add(passLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        jPanel.add(passText, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.EAST;
-        jPanel.add(confirmPassLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        jPanel.add(confirmPassText, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        jPanel.add(registerButton, gbc);
-
-        gbc.gridy = 4;
-        jPanel.add(backButton, gbc);
-
-        return jPanel;
+    private JButton createButton(String text, int width, int height) {
+        JButton button = new JButton(text);
+        button.setPreferredSize(new Dimension(width, height));
+        return button;
     }
 
     private boolean authenticateUser(String identifier, String password) {
         try {
-            String query;
-            if (identifier.contains("@")) {
-                query = "SELECT * FROM loginregister WHERE email = ? AND password = ?";
-            } else {
-                query = "SELECT * FROM loginregister WHERE username = ? AND password = ?";
-            }
+            String query = identifier.contains("@") ? "SELECT * FROM loginregister WHERE email = ? AND password = ?" : "SELECT * FROM loginregister WHERE username = ? AND password = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, identifier);
             statement.setString(2, password);
@@ -226,37 +146,21 @@ public class LoginRegisterGUI extends JFrame {
         }
 
         try {
-            String checkQuery;
-            if (identifier.contains("@")) {
-                checkQuery = "SELECT * FROM loginregister WHERE email = ?";
-            } else {
-                checkQuery = "SELECT * FROM loginregister WHERE username = ?";
-            }
+            String checkQuery = identifier.contains("@") ? "SELECT * FROM loginregister WHERE email = ?" : "SELECT * FROM loginregister WHERE username = ?";
             PreparedStatement checkStatement = connection.prepareStatement(checkQuery);
             checkStatement.setString(1, identifier);
             ResultSet checkResultSet = checkStatement.executeQuery();
 
             if (checkResultSet.next()) {
                 JOptionPane.showMessageDialog(this, "Username or Email already exists");
-                return false; // User already exists
+                return false;
             }
 
-            String insertQuery;
-            if (identifier.contains("@")) {
-                insertQuery = "INSERT INTO loginregister(email, username, password) VALUES(?, ?, ?)";
-                PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
-                insertStatement.setString(1, identifier);
-                insertStatement.setString(2, ""); // Set username to empty string
-                insertStatement.setString(3, password);
-                insertStatement.executeUpdate();
-            } else {
-                insertQuery = "INSERT INTO loginregister(username, email, password) VALUES(?, ?, ?)";
-                PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
-                insertStatement.setString(1, identifier);
-                insertStatement.setString(2, ""); // Set email to empty string
-                insertStatement.setString(3, password);
-                insertStatement.executeUpdate();
-            }
+            String insertQuery = identifier.contains("@") ? "INSERT INTO loginregister(email, username, password) VALUES(?, '', ?)" : "INSERT INTO loginregister(username, email, password) VALUES(?, '', ?)";
+            PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
+            insertStatement.setString(1, identifier);
+            insertStatement.setString(2, password);
+            insertStatement.executeUpdate();
             return true;
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Registration failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
