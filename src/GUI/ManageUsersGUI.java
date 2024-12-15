@@ -21,26 +21,6 @@ public class ManageUsersGUI extends JFrame {
         rightPanel.setLayout(new BorderLayout());
         add(rightPanel);
 
-        switch (countPage) {
-            case 0:
-                rightPanel.add(createMainMenu(), BorderLayout.CENTER);
-                break;
-            case 1:
-                rightPanel.add(new JLabel("Add User"), BorderLayout.CENTER);
-                break;
-            case 2:
-                rightPanel.add(new JLabel("View Users"), BorderLayout.CENTER);
-                break;
-            case 3:
-                rightPanel.add(new JLabel("Update User"), BorderLayout.CENTER);
-                break;
-            case 4:
-                rightPanel.add(new JLabel("Delete User"), BorderLayout.CENTER);
-                break;
-            default:
-                rightPanel.add(new JLabel("Back to Main"), BorderLayout.CENTER);
-                break;
-        }
     }
 
     private JPanel createRightPanel() {
