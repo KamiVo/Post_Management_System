@@ -1,6 +1,7 @@
 package GUI;
 
 import Function.addUser;
+import Main.LoginRegisterGUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,11 +15,16 @@ public class ManageUsersGUI extends JFrame {
         setSize(1600, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(null); // Using null layout for manual placement of components
+        setLayout(null);
 
         JPanel leftPanel = createLeftPanel(username);
         leftPanel.setBounds(0, 0, 500, 900);
         add(leftPanel);
+
+        JPanel topEastPanel = getLogoutButtonPanel();
+        topEastPanel.setBounds(20, 10, 80, 30);
+        topEastPanel.setBackground(Color.BLACK);
+        add(topEastPanel);
 
         cardLayout = new CardLayout();
         mainRightPanel = new JPanel(cardLayout);
@@ -30,7 +36,6 @@ public class ManageUsersGUI extends JFrame {
         add(mainRightPanel);
 
         cardLayout.show(mainRightPanel, "Main");
-
     }
 
     private JPanel createRightPanel(String username) {
@@ -44,78 +49,71 @@ public class ManageUsersGUI extends JFrame {
         return panel;
     }
 
-    private JPanel createAddUserPanel(){
+    private JPanel createAddUserPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
-        JLabel NameLabel = new JLabel("Add Username:");
-        NameLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        JLabel nameLabel = new JLabel("Add Username:");
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 18));
         JTextField addNameText = new JTextField(18);
 
-        JLabel HometownLabel = new JLabel("Add Hometown:");
-        HometownLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        JLabel hometownLabel = new JLabel("Add Hometown:");
+        hometownLabel.setFont(new Font("Arial", Font.BOLD, 18));
         JTextField addHometownText = new JTextField(18);
 
-        JLabel AgeLabel = new JLabel("Add Age:");
-        AgeLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        JLabel ageLabel = new JLabel("Add Age:");
+        ageLabel.setFont(new Font("Arial", Font.BOLD, 18));
         JTextField addAgeText = new JTextField(18);
 
-        JButton SubmitButton = createButton("Submit");
-
-        SubmitButton.addActionListener(e -> {
-            if(addNameText.getText().isEmpty() || addHometownText.getText().isEmpty() || addAgeText.getText().isEmpty()){
-                JOptionPane.showMessageDialog(null, "Please fill in all fields");
-            } else {
-                new addUser(addNameText.getText(), addHometownText.getText(), Integer.parseInt(addAgeText.getText()));
-                addNameText.setText("");
-                addHometownText.setText("");
-                addAgeText.setText("");
-            }
-        });
+        JButton submitButton = createButton("Submit", 200, 50);
+        submitButton.addActionListener(e -> handleAddUser(addNameText, addHometownText, addAgeText));
 
         addAgeText.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    SubmitButton.doClick();
+                    submitButton.doClick();
                 }
             }
         });
 
-        JButton BackButton = createButton("Back");
-
-        BackButton.addActionListener(e -> cardLayout.show(mainRightPanel, "Main"));
+        JButton backButton = createButton("Back", 200, 50);
+        backButton.addActionListener(e -> cardLayout.show(mainRightPanel, "Main"));
 
         gbc.gridx = 0;
-        panel.add(NameLabel, gbc);
-
+        panel.add(nameLabel, gbc);
         gbc.gridx = 1;
         panel.add(addNameText, gbc);
-
         gbc.gridx = 0;
-        panel.add(HometownLabel, gbc);
-
+        panel.add(hometownLabel, gbc);
         gbc.gridx = 1;
         panel.add(addHometownText, gbc);
-
         gbc.gridx = 0;
-        panel.add(AgeLabel, gbc);
-
+        panel.add(ageLabel, gbc);
         gbc.gridx = 1;
         panel.add(addAgeText, gbc);
-
         gbc.gridx = 0;
-        panel.add(SubmitButton, gbc);
-
+        panel.add(submitButton, gbc);
         gbc.gridx = 1;
-        panel.add(BackButton, gbc);
+        panel.add(backButton, gbc);
 
         return panel;
     }
 
+    private void handleAddUser(JTextField addNameText, JTextField addHometownText, JTextField addAgeText) {
+        if (addNameText.getText().isEmpty() || addHometownText.getText().isEmpty() || addAgeText.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please fill in all fields");
+        } else {
+            new addUser(addNameText.getText(), addHometownText.getText(), Integer.parseInt(addAgeText.getText()));
+            addNameText.setText("");
+            addHometownText.setText("");
+            addAgeText.setText("");
+        }
+    }
+
     private JPanel createLeftPanel(String username) {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(new Color(0, 0, 0)); // Black background for contrast
+        panel.setBackground(new Color(0, 0, 0));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -123,32 +121,22 @@ public class ManageUsersGUI extends JFrame {
         gbc.insets = new Insets(20, 0, 20, 0);
         gbc.anchor = GridBagConstraints.CENTER;
 
-        // Logo
-        JLabel logo = createScaledLogo("C:\\Users\\admin\\Downloads\\user.png", 100, 100); // Add your logo image path
-
+        JLabel logo = createScaledLogo("C:\\Users\\admin\\Downloads\\user.png", 100, 100);
         panel.add(logo, gbc);
 
-        // Username
         JLabel userLabel = new JLabel(username, SwingConstants.CENTER);
         userLabel.setFont(new Font("Arial", Font.BOLD, 20));
         userLabel.setForeground(Color.WHITE);
         panel.add(userLabel, gbc);
 
-        // Buttons
-        JButton addUserButton = createButton("Add User");
-        JButton viewUsersButton = createButton("View Users");
-        JButton updateUserButton = createButton("Update User");
-        JButton deleteUserButton = createButton("Delete User");
-        JButton backToMainButton = createButton("Back to Main");
-
+        JButton addUserButton = createButton("Add User", 200, 50);
         addUserButton.addActionListener(e -> cardLayout.show(mainRightPanel, "Add User"));
-
-        // Add buttons to the panel
         panel.add(addUserButton, gbc);
-        panel.add(viewUsersButton, gbc);
-        panel.add(updateUserButton, gbc);
-        panel.add(deleteUserButton, gbc);
-        panel.add(backToMainButton, gbc);
+
+        panel.add(createButton("Update User", 200, 50), gbc);
+        panel.add(createButton("View Users", 200, 50), gbc);
+        panel.add(createButton("Delete User", 200, 50), gbc);
+        panel.add(createButton("Back to Main", 200, 50), gbc);
 
         return panel;
     }
@@ -159,15 +147,25 @@ public class ManageUsersGUI extends JFrame {
         return new JLabel(new ImageIcon(scaledImage));
     }
 
-    private JButton createButton(String text) {
+    private JButton createButton(String text, int width, int height) {
         JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(200, 50));
+        button.setPreferredSize(new Dimension(width, height));
         button.setFont(new Font("Arial", Font.PLAIN, 16));
         button.setFocusPainted(false);
         button.setForeground(Color.BLACK);
-        button.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 1)); // Subtle border
-
+        button.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 1));
         return button;
+    }
+
+    private JPanel getLogoutButtonPanel() {
+        JPanel logoutButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton logoutButton = createButton("Logout", 80, 30);
+        logoutButton.addActionListener(e -> {
+            new LoginRegisterGUI().setVisible(true);
+            dispose();
+        });
+        logoutButtonPanel.add(logoutButton);
+        return logoutButtonPanel;
     }
 
     public static void main(String[] args) {

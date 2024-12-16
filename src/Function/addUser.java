@@ -1,6 +1,5 @@
 package Function;
 
-import Main.LoginRegisterGUI;
 import javax.swing.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,34 +14,41 @@ public class addUser {
 
     public addUser(String username, String hometown, int age) {
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            String checkQuery = "SELECT * FROM user WHERE username = ? OR hometown = ? OR age = ?";
-            try (PreparedStatement checkStmt = connection.prepareStatement(checkQuery)) {
-                checkStmt.setString(1, username);
-                checkStmt.setString(2, hometown);
-                checkStmt.setInt(3, age);
-                try (ResultSet rs = checkStmt.executeQuery()) {
-                    if (rs.next()) {
-                        JOptionPane.showMessageDialog(null, "User with the same username, hometown, or age already exists!");
-                        return;
-                    }
-                }
+            if (isUserExists(connection, username, hometown, age)) {
+                JOptionPane.showMessageDialog(null, "User with the same username, hometown, or age already exists!");
+                return;
             }
-
-            String insertQuery = "INSERT INTO user (username, hometown, age) VALUES (?, ?, ?)";
-            try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
-                insertStmt.setString(1, username);
-                insertStmt.setString(2, hometown);
-                insertStmt.setInt(3, age);
-                insertStmt.executeUpdate();
-                JOptionPane.showMessageDialog(null, "User added successfully!");
-            }
+            addUserToDatabase(connection, username, hometown, age);
+            JOptionPane.showMessageDialog(null, "User added successfully!");
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Failed to add user: " + e.getMessage());
         }
     }
 
+    private boolean isUserExists(Connection connection, String username, String hometown, int age) throws SQLException {
+        String checkQuery = "SELECT * FROM user WHERE username = ? OR hometown = ? OR age = ?";
+        try (PreparedStatement checkStmt = connection.prepareStatement(checkQuery)) {
+            checkStmt.setString(1, username);
+            checkStmt.setString(2, hometown);
+            checkStmt.setInt(3, age);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    private void addUserToDatabase(Connection connection, String username, String hometown, int age) throws SQLException {
+        String insertQuery = "INSERT INTO user (username, hometown, age) VALUES (?, ?, ?)";
+        try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
+            insertStmt.setString(1, username);
+            insertStmt.setString(2, hometown);
+            insertStmt.setInt(3, age);
+            insertStmt.executeUpdate();
+        }
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new LoginRegisterGUI().setVisible(true));
+        SwingUtilities.invokeLater(() -> new Main.MainDashboardGUI("admin").setVisible(true));
     }
 }
