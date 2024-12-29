@@ -4,12 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 
-class FormulaException extends Exception {
-    public FormulaException(String message) {
-        super(message);
-    }
-}
-
 public class LoginRegisterGUI extends JFrame {
     public static Connection connection;
     private final CardLayout cardLayout;
@@ -21,13 +15,19 @@ public class LoginRegisterGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
+        setLayout(new BorderLayout());
+        GradientPanel gradientPanel = new GradientPanel();
+        gradientPanel.setLayout(new BorderLayout());
+        add(gradientPanel, BorderLayout.CENTER);
+
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
+        mainPanel.setOpaque(false); // Make main panel transparent
 
         mainPanel.add(createLoginPanel(), "Login");
         mainPanel.add(createRegisterPanel(), "Register");
 
-        add(mainPanel);
+        gradientPanel.add(mainPanel, BorderLayout.CENTER);
         cardLayout.show(mainPanel, "Login");
 
         initializeDBConnection();
@@ -42,7 +42,8 @@ public class LoginRegisterGUI extends JFrame {
     }
 
     private JPanel createLoginPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel logPanel = new JPanel(new GridBagLayout());
+        logPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
@@ -76,12 +77,13 @@ public class LoginRegisterGUI extends JFrame {
             }
         });
 
-        addComponentsToPanel(panel, gbc, userLabel, userText, passLabel, passText, loginButton, registerButton);
-        return panel;
+        addComponentsToPanel(logPanel, gbc, userLabel, userText, passLabel, passText, loginButton, registerButton);
+        return logPanel;
     }
 
     private JPanel createRegisterPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel regPanel = new JPanel(new GridBagLayout());
+        regPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
@@ -115,15 +117,15 @@ public class LoginRegisterGUI extends JFrame {
                 } else {
                     JOptionPane.showMessageDialog(null, "Passwords do not match");
                 }
-            } catch (FormulaException ex) {
+            } catch (Main.FormulaException ex) {
                 JOptionPane.showMessageDialog(null, ex.getMessage());
             }
         });
 
         backButton.addActionListener(e -> cardLayout.show(mainPanel, "Login"));
 
-        addComponentsToPanel(panel, gbc, userLabel, userText, passLabel, passText, confirmPassLabel, confirmPassText, registerButton, backButton);
-        return panel;
+        addComponentsToPanel(regPanel, gbc, userLabel, userText, passLabel, passText, confirmPassLabel, confirmPassText, registerButton, backButton);
+        return regPanel;
     }
 
     private void addComponentsToPanel(JPanel panel, GridBagConstraints gbc, JComponent... components) {
@@ -138,6 +140,7 @@ public class LoginRegisterGUI extends JFrame {
     private JButton createButton(String text, int width, int height) {
         JButton button = new JButton(text);
         button.setPreferredSize(new Dimension(width, height));
+        button.setFocusPainted(false);
         return button;
     }
 
@@ -155,9 +158,9 @@ public class LoginRegisterGUI extends JFrame {
         }
     }
 
-    private boolean registerUser(String identifier, String password) throws FormulaException {
+    private boolean registerUser(String identifier, String password) throws Main.FormulaException {
         if (identifier == null || identifier.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            throw new FormulaException("Username/Email and Password cannot be blank");
+            throw new Main.FormulaException("Username/Email and Password cannot be blank");
         }
 
         try {
@@ -180,6 +183,21 @@ public class LoginRegisterGUI extends JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Registration failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return false;
+        }
+    }
+
+    static class GradientPanel extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            int width = getWidth();
+            int height = getHeight();
+            Color color1 = new Color(0x33ccff);
+            Color color2 = new Color(0x0066cc);
+            GradientPaint gp = new GradientPaint(0, 0, color1, 0, height, color2);
+            g2d.setPaint(gp);
+            g2d.fillRect(0, 0, width, height);
         }
     }
 

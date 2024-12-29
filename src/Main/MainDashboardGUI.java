@@ -95,6 +95,7 @@ public class MainDashboardGUI extends JFrame {
     private JButton createButton(String text, int width, int height) {
         JButton button = new JButton(text);
         button.setPreferredSize(new Dimension(width, height));
+        button.setFocusPainted(false);
         return button;
     }
 
