@@ -1,4 +1,4 @@
-# 📋 Main.User and Main.Post Management System
+# 📋 User and Post Management System
 
 ## 📖 Description
 A Java-based application with a graphical user interface (GUI) for managing users and posts. The application allows users to log in, register, and manage users and posts through an intuitive GUI.
@@ -6,8 +6,8 @@ A Java-based application with a graphical user interface (GUI) for managing user
 ## ✨ Features
 - ➕ Add, update, delete, and display users.
 - ➕ Add, update, delete, and display posts.
-- 🔐 Main.User authentication (login and registration).
-- 🖥️ Graphical Main.User Interface (GUI) for user interaction.
+- 🔐 User authentication (login and registration).
+- 🖥️ Graphical User Interface (GUI) for user interaction.
 
 ## 🛠️ Requirements
 - ☕ Java 8 or higher
@@ -31,8 +31,8 @@ A Java-based application with a graphical user interface (GUI) for managing user
 ## 📂 Classes
 - `Main.LoginRegisterGUI`: Handles user authentication (login and registration).
 - `Main.MainDashboardGUI`: Main dashboard for managing users and posts.
-- `Main.User`: Represents a user with attributes like ID, name, hometown, and age.
-- `Main.Post`: Represents a post with attributes like ID, title, content, author, and date.
+- `User`: Represents a user with attributes like ID, name, hometown, and age.
+- `Post`: Represents a post with attributes like ID, title, content, author, and date.
 
 ## 📄 License
 This project is licensed under the [MIT License](LICENSE).
