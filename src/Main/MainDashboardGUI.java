@@ -5,6 +5,8 @@ import GUI.ManageUsersGUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class MainDashboardGUI extends JFrame {
 
@@ -12,41 +14,44 @@ public class MainDashboardGUI extends JFrame {
         setTitle("User and Post Management System");
         setSize(1600, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(null);
+        setLayout(new BorderLayout());
         setLocationRelativeTo(null);
         setBackground(Color.BLACK);
 
+        String role = UserRole.getUserRole(username);
+
         JPanel topPanel = getTopPanel(username);
-        topPanel.setBounds(50, 50, 1500, 100);
-        add(topPanel);
+        topPanel.add(getLogoutButtonPanel(), BorderLayout.EAST);
+        JPanel midPanel = getMidPanel(role);
 
-        JPanel topEastPanel = getLogoutButtonPanel();
-        topEastPanel.setBounds(20, 10, 1500, 100);
-        add(topEastPanel);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(midPanel, BorderLayout.CENTER);
 
-        JPanel midPanel = getMidPanel();
-        midPanel.setBounds(50, 200, 1500, 600);
-        add(midPanel);
+        add(mainPanel, BorderLayout.CENTER);
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                revalidate();
+                repaint();
+            }
+        });
     }
 
     private JPanel getTopPanel(String username) {
-        JPanel topPanel = new JPanel(null);
-        topPanel.setPreferredSize(new Dimension(1500, 100));
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setPreferredSize(new Dimension(100, 100));
 
         JLabel mainLabel = new JLabel("Welcome " + username + " to the User and Post Management System", SwingConstants.CENTER);
         mainLabel.setFont(new Font("Arial", Font.BOLD, 30));
-        mainLabel.setBounds(100, 20, 1300, 60);
-
-        JPanel labelsPanel = new JPanel(null);
-        labelsPanel.setBounds(0, 0, 1500, 100);
-        labelsPanel.add(mainLabel);
-
-        topPanel.add(labelsPanel);
+        mainLabel.setBounds(1000, 0, 1600, 100);
+        topPanel.add(mainLabel, BorderLayout.CENTER);
 
         return topPanel;
     }
 
-    private JPanel getMidPanel() {
+    private JPanel getMidPanel(String role) {
         JPanel midPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -63,7 +68,9 @@ public class MainDashboardGUI extends JFrame {
         midPanel.add(topMidPanel, gbc);
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(mnUserButton());
+        if ("admin".equals(role)) {
+            buttonPanel.add(mnUserButton());
+        }
         buttonPanel.add(mnPostButton());
 
         gbc.gridy = 1;
@@ -72,37 +79,37 @@ public class MainDashboardGUI extends JFrame {
         return midPanel;
     }
 
-    private JButton mnUserButton(){
+    private JButton mnUserButton() {
         JButton button = new JButton("Manage Users");
         button.setPreferredSize(new Dimension(200, 50));
-        button.addActionListener(e -> {
+        button.addActionListener(_ -> {
             new ManageUsersGUI("User").setVisible(true);
             dispose();
         });
         return button;
     }
 
-    private JButton mnPostButton(){
+    private JButton mnPostButton() {
         JButton button = new JButton("Manage Posts");
         button.setPreferredSize(new Dimension(200, 50));
-        button.addActionListener(e -> {
+        button.addActionListener(_ -> {
             new ManagePostsGUI("Posts").setVisible(true);
             dispose();
         });
         return button;
     }
 
-    private JButton createButton(String text, int width, int height) {
-        JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(width, height));
+    private JButton createButton() {
+        JButton button = new JButton("Logout");
+        button.setPreferredSize(new Dimension(80, 30));
         button.setFocusPainted(false);
         return button;
     }
 
     private JPanel getLogoutButtonPanel() {
         JPanel logoutButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton logoutButton = createButton("Logout", 80, 30);
-        logoutButton.addActionListener(e -> {
+        JButton logoutButton = createButton();
+        logoutButton.addActionListener(_ -> {
             new LoginRegisterGUI().setVisible(true);
             dispose();
         });
@@ -111,6 +118,6 @@ public class MainDashboardGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MainDashboardGUI("User").setVisible(true));
+        SwingUtilities.invokeLater(() -> new MainDashboardGUI("Admin").setVisible(true));
     }
 }

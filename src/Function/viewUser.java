@@ -23,7 +23,7 @@ public class viewUser extends JPanel {
 
     private void loadData(DefaultTableModel tableModel) {
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            String query = "SELECT * FROM user";
+            String query = "SELECT username, hometown, age FROM users WHERE role_id = 2";
             try (PreparedStatement statement = connection.prepareStatement(query);
                  ResultSet resultSet = statement.executeQuery()) {
 

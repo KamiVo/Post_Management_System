@@ -1,6 +1,7 @@
 package GUI;
 
 import Function.addUser;
+import Function.viewUser;
 import Main.LoginRegisterGUI;
 
 import javax.swing.*;
@@ -38,8 +39,9 @@ public class ManageUsersGUI extends JFrame {
         mainRightPanel.setBounds(width / 3, 0, width - (width / 3), height);
 
         // Add main panel to the card layout and load dynamically
-        loadPanelDynamically(() -> createWelcomePanel(username), "Main");
+        loadPanelDynamically(() -> createWelcomePanel(username));
         mainRightPanel.add(createAddUserPanel(), "Add User");
+        mainRightPanel.add(new viewUser(), "View Users");
         add(mainRightPanel);
 
         // Show the main panel by default
@@ -86,8 +88,8 @@ public class ManageUsersGUI extends JFrame {
         ageLabel.setFont(new Font("Arial", Font.BOLD, 20));
         JTextField ageField = new JTextField(20);
 
-        JButton submitButton = createButton("Submit", 200, 50);
-        submitButton.addActionListener(e -> handleAddUser(nameField, hometownField, ageField));
+        JButton submitButton = createButton("Submit");
+        submitButton.addActionListener(_ -> handleAddUser(nameField, hometownField, ageField));
 
         ageField.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
@@ -145,7 +147,7 @@ public class ManageUsersGUI extends JFrame {
         gbc.gridy = GridBagConstraints.RELATIVE;
         gbc.insets = new Insets(20, 0, 20, 0);
 
-        JLabel logo = createScaledLogo("C:\\Users\\admin\\Downloads\\user.png", 100, 100);
+        JLabel logo = createScaledLogo();
         JLabel userLabel = new JLabel(username);
         userLabel.setFont(new Font("Arial", Font.BOLD, 20));
         userLabel.setForeground(Color.WHITE);
@@ -155,7 +157,7 @@ public class ManageUsersGUI extends JFrame {
 
         panel.add(createNavigationButton("Add User", "Add User"), gbc);
         panel.add(createNavigationButton("Update User", null), gbc);
-        panel.add(createNavigationButton("View Users", null), gbc);
+        panel.add(createNavigationButton("View Users", "View Users"), gbc);
         panel.add(createNavigationButton("Delete User", null), gbc);
         panel.add(createNavigationButton("Back to Main", "Main"), gbc);
 
@@ -169,7 +171,7 @@ public class ManageUsersGUI extends JFrame {
         logoutButton.setPreferredSize(new Dimension(80, 30));
         logoutButton.setFont(new Font("Arial", Font.BOLD, 12));
         logoutButton.setFocusPainted(false);
-        logoutButton.addActionListener(e -> {
+        logoutButton.addActionListener(_ -> {
             new LoginRegisterGUI().setVisible(true);
             dispose();
         });
@@ -179,30 +181,30 @@ public class ManageUsersGUI extends JFrame {
     }
 
     private JButton createNavigationButton(String text, String targetPanel) {
-        JButton button = createButton(text, 200, 50);
+        JButton button = createButton(text);
         if (targetPanel != null) {
-            button.addActionListener(e -> cardLayout.show(mainRightPanel, targetPanel));
+            button.addActionListener(_ -> cardLayout.show(mainRightPanel, targetPanel));
         }
         return button;
     }
 
-    private JLabel createScaledLogo(String imagePath, int width, int height) {
-        ImageIcon originalIcon = new ImageIcon(imagePath);
-        Image scaledImage = originalIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+    private JLabel createScaledLogo() {
+        ImageIcon originalIcon = new ImageIcon("C:\\Users\\admin\\Downloads\\user.png");
+        Image scaledImage = originalIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
         return new JLabel(new ImageIcon(scaledImage));
     }
 
-    private JButton createButton(String text, int width, int height) {
+    private JButton createButton(String text) {
         JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(width, height));
+        button.setPreferredSize(new Dimension(200, 50));
         button.setFont(new Font("Arial", Font.BOLD, 16));
         button.setFocusPainted(false);
         return button;
     }
 
-    private void loadPanelDynamically(Supplier<JPanel> panelSupplier, String panelName) {
+    private void loadPanelDynamically(Supplier<JPanel> panelSupplier) {
         JPanel panel = panelSupplier.get();
-        mainRightPanel.add(panel, panelName);
+        mainRightPanel.add(panel, "Main");
     }
 
     public static void main(String[] args) {

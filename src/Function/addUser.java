@@ -21,13 +21,13 @@ public class addUser {
             addUserToDatabase(connection, username, hometown, age);
             JOptionPane.showMessageDialog(null, "User added successfully!");
         } catch (SQLException e) {
-            e.printStackTrace();
+
             JOptionPane.showMessageDialog(null, "Failed to add user: " + e.getMessage());
         }
     }
 
     private boolean isUserExists(Connection connection, String username, String hometown, int age) throws SQLException {
-        String checkQuery = "SELECT * FROM user WHERE username = ? OR hometown = ? OR age = ?";
+        String checkQuery = "SELECT * FROM users WHERE username = ? OR hometown = ? OR age = ?";
         try (PreparedStatement checkStmt = connection.prepareStatement(checkQuery)) {
             checkStmt.setString(1, username);
             checkStmt.setString(2, hometown);
@@ -39,7 +39,7 @@ public class addUser {
     }
 
     private void addUserToDatabase(Connection connection, String username, String hometown, int age) throws SQLException {
-        String insertQuery = "INSERT INTO user (username, hometown, age) VALUES (?, ?, ?)";
+        String insertQuery = "INSERT INTO users (username, hometown, age) VALUES (?, ?, ?)";
         try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
             insertStmt.setString(1, username);
             insertStmt.setString(2, hometown);

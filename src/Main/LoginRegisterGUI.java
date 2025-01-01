@@ -3,11 +3,14 @@ package Main;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
+import java.util.function.Supplier;
 
 public class LoginRegisterGUI extends JFrame {
     public static Connection connection;
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
+    int width = 1600;
+    int height = 900;
 
     public LoginRegisterGUI() {
         setTitle("User and Post Management System");
@@ -22,9 +25,11 @@ public class LoginRegisterGUI extends JFrame {
 
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
+        mainPanel.setBounds(width / 3, 0, width - (width / 3), height);
         mainPanel.setOpaque(false); // Make main panel transparent
 
-        mainPanel.add(createLoginPanel(), "Login");
+        loadPanelDynamically(this::createLoginPanel);
+//        mainPanel.add(createLoginPanel(), "Login");
         mainPanel.add(createRegisterPanel(), "Register");
 
         gradientPanel.add(mainPanel, BorderLayout.CENTER);
@@ -42,8 +47,8 @@ public class LoginRegisterGUI extends JFrame {
     }
 
     private JPanel createLoginPanel() {
-        JPanel logPanel = new JPanel(new GridBagLayout());
-        logPanel.setOpaque(false);
+        JPanel loginPanel = new JPanel(new GridBagLayout());
+        loginPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
@@ -55,10 +60,10 @@ public class LoginRegisterGUI extends JFrame {
         passLabel.setFont(new Font("Arial", Font.BOLD, 18));
         JPasswordField passText = new JPasswordField(18);
 
-        JButton loginButton = createButton("Login", 150, 30);
-        JButton registerButton = createButton("Register", 150, 30);
+        JButton loginButton = createButton("Login");
+        JButton registerButton = createButton("Register");
 
-        loginButton.addActionListener(e -> {
+        loginButton.addActionListener(_ -> {
             if (authenticateUser(userText.getText(), new String(passText.getPassword()))) {
                 new MainDashboardGUI(userText.getText()).setVisible(true);
                 dispose();
@@ -67,7 +72,7 @@ public class LoginRegisterGUI extends JFrame {
             }
         });
 
-        registerButton.addActionListener(e -> cardLayout.show(mainPanel, "Register"));
+        registerButton.addActionListener(_ -> cardLayout.show(mainPanel, "Register"));
 
         passText.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -77,8 +82,8 @@ public class LoginRegisterGUI extends JFrame {
             }
         });
 
-        addComponentsToPanel(logPanel, gbc, userLabel, userText, passLabel, passText, loginButton, registerButton);
-        return logPanel;
+        addComponentsToPanel(loginPanel, gbc, userLabel, userText, passLabel, passText, loginButton, registerButton);
+        return loginPanel;
     }
 
     private JPanel createRegisterPanel() {
@@ -99,10 +104,10 @@ public class LoginRegisterGUI extends JFrame {
         confirmPassLabel.setFont(new Font("Arial", Font.BOLD, 18));
         JPasswordField confirmPassText = new JPasswordField(20);
 
-        JButton registerButton = createButton("Register", 150, 30);
-        JButton backButton = createButton("Back", 150, 30);
+        JButton registerButton = createButton("Register");
+        JButton backButton = createButton("Back");
 
-        registerButton.addActionListener(e -> {
+        registerButton.addActionListener(_ -> {
             try {
                 if (new String(passText.getPassword()).equals(new String(confirmPassText.getPassword()))) {
                     if (registerUser(userText.getText(), new String(passText.getPassword()))) {
@@ -122,7 +127,7 @@ public class LoginRegisterGUI extends JFrame {
             }
         });
 
-        backButton.addActionListener(e -> cardLayout.show(mainPanel, "Login"));
+        backButton.addActionListener(_ -> cardLayout.show(mainPanel, "Login"));
 
         addComponentsToPanel(regPanel, gbc, userLabel, userText, passLabel, passText, confirmPassLabel, confirmPassText, registerButton, backButton);
         return regPanel;
@@ -137,16 +142,16 @@ public class LoginRegisterGUI extends JFrame {
         }
     }
 
-    private JButton createButton(String text, int width, int height) {
+    private JButton createButton(String text) {
         JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(width, height));
+        button.setPreferredSize(new Dimension(150, 30));
         button.setFocusPainted(false);
         return button;
     }
 
     private boolean authenticateUser(String identifier, String password) {
         try {
-            String query = identifier.contains("@") ? "SELECT * FROM loginregister WHERE email = ? AND password = ?" : "SELECT * FROM loginregister WHERE username = ? AND password = ?";
+            String query = identifier.contains("@") ? "SELECT * FROM users WHERE email = ? AND password = ?" : "SELECT * FROM users WHERE username = ? AND password = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, identifier);
             statement.setString(2, password);
@@ -164,7 +169,7 @@ public class LoginRegisterGUI extends JFrame {
         }
 
         try {
-            String checkQuery = identifier.contains("@") ? "SELECT * FROM loginregister WHERE email = ?" : "SELECT * FROM loginregister WHERE username = ?";
+            String checkQuery = identifier.contains("@") ? "SELECT * FROM users WHERE email = ?" : "SELECT * FROM users WHERE username = ?";
             PreparedStatement checkStatement = connection.prepareStatement(checkQuery);
             checkStatement.setString(1, identifier);
             ResultSet checkResultSet = checkStatement.executeQuery();
@@ -174,7 +179,7 @@ public class LoginRegisterGUI extends JFrame {
                 return false;
             }
 
-            String insertQuery = identifier.contains("@") ? "INSERT INTO loginregister(email, username, password) VALUES(?, '', ?)" : "INSERT INTO loginregister(username, email, password) VALUES(?, '', ?)";
+            String insertQuery = identifier.contains("@") ? "INSERT INTO users(email, username, password) VALUES(?, '', ?)" : "INSERT INTO users(username, email, password) VALUES(?, '', ?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
             insertStatement.setString(1, identifier);
             insertStatement.setString(2, password);
@@ -199,6 +204,11 @@ public class LoginRegisterGUI extends JFrame {
             g2d.setPaint(gp);
             g2d.fillRect(0, 0, width, height);
         }
+    }
+
+    private void loadPanelDynamically(Supplier<JPanel> panelSupplier) {
+        JPanel panel = panelSupplier.get();
+        mainPanel.add(panel, "Login");
     }
 
     public static void main(String[] args) {
