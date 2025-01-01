@@ -1,21 +1,34 @@
--- Tạo database
-CREATE DATABASE user_management;
-
--- Sử dụng database vừa tạo
+-- Create the database
+CREATE DATABASE IF NOT EXISTS user_management;
 USE user_management;
 
--- Tạo bảng người dùng (users)
-CREATE TABLE users (
+-- Create the roles table
+CREATE TABLE roles (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    hometown VARCHAR(100),
-    age INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name VARCHAR(50) NOT NULL
 );
 
--- Tạo bảng bài đăng (posts)
+-- Insert roles
+INSERT INTO roles (name) VALUES ('admin'), ('user');
+
+-- Create the users table with age and hometown
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) ,
+    email VARCHAR(100) ,
+    password VARCHAR(255) NOT NULL,
+    age INT ,
+    hometown VARCHAR(100) ,
+    role_id INT,
+    FOREIGN KEY (role_id) REFERENCES roles(id)
+);
+
+-- Insert users with age and hometown
+INSERT INTO users (username, email, password, age, hometown, role_id) VALUES
+('admin', '', 'admin', NULL , '', (SELECT id FROM roles WHERE name = 'admin')),
+('user1', 'user1@example.com', 'password1', 28, 'User Town', (SELECT id FROM roles WHERE name = 'user')),
+
+-- Create the posts table
 CREATE TABLE posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -25,10 +38,7 @@ CREATE TABLE posts (
     FOREIGN KEY (author_id) REFERENCES users(id)
 );
 
--- Tạo bảng đăng nhập (loginregister)
-CREATE TABLE loginregister (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL
-);
+-- Insert posts
+INSERT INTO posts (title, content, author_id) VALUES
+('First Post', 'This is the content of the first post.', (SELECT id FROM users WHERE username = 'admin')),
+('Second Post', 'This is the content of the second post.', (SELECT id FROM users WHERE username = 'user1'));
