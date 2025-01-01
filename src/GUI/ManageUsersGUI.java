@@ -189,8 +189,8 @@ public class ManageUsersGUI extends JFrame {
     }
 
     private JLabel createScaledLogo() {
-        ImageIcon originalIcon = new ImageIcon("C:\\Users\\admin\\Downloads\\user.png");
-        Image scaledImage = originalIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        ImageIcon originalIcon = new ImageIcon(getClass().getResource("/user.png"));
+        Image scaledImage = originalIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
         return new JLabel(new ImageIcon(scaledImage));
     }
 
