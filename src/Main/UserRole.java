@@ -22,7 +22,7 @@ public class UserRole {
     public static String getUserRole(String username) {
         String role = null;
         try (Connection conn = Database.getConnection()) {
-            String query = "SELECT r.name FROM users u JOIN roles r ON u.role_id = r.id WHERE u.username = ?";
+            String query = "SELECT r.name FROM user u JOIN roles r ON u.role_id = r.id WHERE u.username = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();

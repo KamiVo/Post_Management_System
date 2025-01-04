@@ -1,62 +1,86 @@
 package Function;
 
+import Main.User;
+
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class viewUser extends JPanel {
-    private static final String URL = "jdbc:mysql://localhost:3306/user_management";
-    private static final String USER = "root"; // Replace with your database username
-    private static final String PASSWORD = "K@miVo_02825"; // Replace with your database password
-
     public viewUser() {
-        setLayout(new BorderLayout());
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+        mainPanel.setOpaque(false);
 
-        DefaultTableModel tableModel = new DefaultTableModel();
-        JTable table = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
-        add(scrollPane, BorderLayout.CENTER);
+        List<User> users = getUsers();
 
-        loadData(tableModel);
+        for (User user : users) {
+            JPanel userPanel = createUserPanel(user);
+            userPanel.setBackground(Color.BLUE);
+            userPanel.setPreferredSize(new Dimension(300, 200));
+            userPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            userPanel.setLayout(new GridLayout(4, 1));
+
+            mainPanel.add(userPanel);
+        }
+
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        scrollPane.setPreferredSize(new Dimension(800, 300));
+        scrollPane.setOpaque(false);
+
+        add(scrollPane);
     }
 
-    private void loadData(DefaultTableModel tableModel) {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            String query = "SELECT username, hometown, age FROM users WHERE role_id = 2";
-            try (PreparedStatement statement = connection.prepareStatement(query);
-                 ResultSet resultSet = statement.executeQuery()) {
+    private JPanel createUserPanel(User user) {
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        panel.setLayout(new GridLayout(4, 1));
 
-                ResultSetMetaData metaData = resultSet.getMetaData();
-                int columnCount = metaData.getColumnCount();
-
-                // Add column names to the table model
-                for (int i = 1; i <= columnCount; i++) {
-                    tableModel.addColumn(metaData.getColumnName(i));
-                }
-
-                // Add rows to the table model
-                while (resultSet.next()) {
-                    Object[] row = new Object[columnCount];
-                    for (int i = 1; i <= columnCount; i++) {
-                        row[i - 1] = resultSet.getObject(i);
-                    }
-                    tableModel.addRow(row);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Failed to load data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        if (!"admin".equals(user.getRole())) {
+            panel.add(createLabel("<html><span style='color:yellow;'>ID:</span> " + user.getId() + "</html>"));
         }
+        panel.add(createLabel("<html><span style='color:yellow;'>Username:</span> " + user.getName() + "</html>"));
+        panel.add(createLabel("<html><span style='color:yellow;'>Age:</span> " + user.getAge() + "</html>"));
+        panel.add(createLabel("<html><span style='color:yellow;'>Hometown:</span> " + user.getHometown() + "</html>"));
+
+        return panel;
+    }
+
+    private List<User> getUsers() {
+        List<User> users = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/user_management", "root", "K@miVo_02825");
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("SELECT id, username, age, hometown FROM user_details")) {
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String username = resultSet.getString("username");
+                int age = resultSet.getInt("age");
+                String hometown = resultSet.getString("hometown");
+                users.add(new User(id, username, hometown, age, null));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Failed to get users: " + e.getMessage());
+        }
+        return users;
+    }
+
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.BOLD, 20));
+        label.setForeground(Color.WHITE);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        return label;
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("View Users");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 600);
-            frame.add(new viewUser());
-            frame.setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new GUI.ManageUsersGUI("admin").setVisible(true));
     }
 }

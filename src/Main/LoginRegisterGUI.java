@@ -151,7 +151,7 @@ public class LoginRegisterGUI extends JFrame {
 
     private boolean authenticateUser(String identifier, String password) {
         try {
-            String query = identifier.contains("@") ? "SELECT * FROM users WHERE email = ? AND password = ?" : "SELECT * FROM users WHERE username = ? AND password = ?";
+            String query = identifier.contains("@") ? "SELECT * FROM user WHERE email = ? AND password = ?" : "SELECT * FROM user WHERE username = ? AND password = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, identifier);
             statement.setString(2, password);
@@ -169,7 +169,7 @@ public class LoginRegisterGUI extends JFrame {
         }
 
         try {
-            String checkQuery = identifier.contains("@") ? "SELECT * FROM users WHERE email = ?" : "SELECT * FROM users WHERE username = ?";
+            String checkQuery = identifier.contains("@") ? "SELECT * FROM user WHERE email = ?" : "SELECT * FROM user WHERE username = ?";
             PreparedStatement checkStatement = connection.prepareStatement(checkQuery);
             checkStatement.setString(1, identifier);
             ResultSet checkResultSet = checkStatement.executeQuery();
@@ -179,7 +179,7 @@ public class LoginRegisterGUI extends JFrame {
                 return false;
             }
 
-            String insertQuery = identifier.contains("@") ? "INSERT INTO users(email, username, password) VALUES(?, '', ?)" : "INSERT INTO users(username, email, password) VALUES(?, '', ?)";
+            String insertQuery = identifier.contains("@") ? "INSERT INTO user(email, username, password) VALUES(?, '', ?)" : "INSERT INTO user (username, email, password) VALUES(?, '', ?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
             insertStatement.setString(1, identifier);
             insertStatement.setString(2, password);

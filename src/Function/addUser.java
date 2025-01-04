@@ -27,7 +27,7 @@ public class addUser {
     }
 
     private boolean isUserExists(Connection connection, String username, String hometown, int age) throws SQLException {
-        String checkQuery = "SELECT * FROM users WHERE username = ? OR hometown = ? OR age = ?";
+        String checkQuery = "SELECT * FROM user_details WHERE username = ? OR hometown = ? OR age = ?";
         try (PreparedStatement checkStmt = connection.prepareStatement(checkQuery)) {
             checkStmt.setString(1, username);
             checkStmt.setString(2, hometown);
@@ -39,7 +39,7 @@ public class addUser {
     }
 
     private void addUserToDatabase(Connection connection, String username, String hometown, int age) throws SQLException {
-        String insertQuery = "INSERT INTO users (username, hometown, age) VALUES (?, ?, ?)";
+        String insertQuery = "INSERT INTO user_details (username, hometown, age) VALUES (?, ?, ?)";
         try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
             insertStmt.setString(1, username);
             insertStmt.setString(2, hometown);
@@ -49,6 +49,6 @@ public class addUser {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Main.MainDashboardGUI("admin").setVisible(true));
+        SwingUtilities.invokeLater(() -> new GUI.ManageUsersGUI("admin").setVisible(true));
     }
 }

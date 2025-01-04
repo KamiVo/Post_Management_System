@@ -13,41 +13,35 @@ import java.util.function.Supplier;
 public class ManageUsersGUI extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel mainRightPanel;
-    int width = 1600;
-    int height = 900;
+    private static final int WIDTH = 1600;
+    private static final int HEIGHT = 900;
 
     public ManageUsersGUI(String username) {
         setTitle("User Management System");
-        setSize(width, height);
+        setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(null);
 
-        // Create and add left panel
         JPanel leftPanel = createLeftPanel(username);
-        leftPanel.setBounds(0, 0, width / 3, height);
+        leftPanel.setBounds(0, 0, WIDTH / 3, HEIGHT);
         add(leftPanel);
 
-        // Create and add top-right logout button panel
         JPanel topEastPanel = createLogoutButtonPanel();
-        topEastPanel.setBounds(width - 130, 10, 90, 35);
+        topEastPanel.setBounds(WIDTH - 130, 10, 90, 35);
         add(topEastPanel);
 
-        // Create right panel with card layout
         cardLayout = new CardLayout();
         mainRightPanel = new JPanel(cardLayout);
-        mainRightPanel.setBounds(width / 3, 0, width - (width / 3), height);
+        mainRightPanel.setBounds(WIDTH / 3, 0, WIDTH - (WIDTH / 3), HEIGHT);
 
-        // Add main panel to the card layout and load dynamically
         loadPanelDynamically(() -> createWelcomePanel(username));
         mainRightPanel.add(createAddUserPanel(), "Add User");
-        mainRightPanel.add(new viewUser(), "View Users");
+        mainRightPanel.add(createViewPanel(), "View Users");
         add(mainRightPanel);
 
-        // Show the main panel by default
         cardLayout.show(mainRightPanel, "Main");
 
-        // Add component listener for resizing
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -59,6 +53,19 @@ public class ManageUsersGUI extends JFrame {
                 revalidate();
             }
         });
+    }
+
+    private JPanel createViewPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+        panel.add(new viewUser(), gbc);
+        return panel;
     }
 
     private JPanel createWelcomePanel(String username) {
@@ -100,7 +107,6 @@ public class ManageUsersGUI extends JFrame {
             }
         });
 
-        // Add components to the panel
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.EAST;
         panel.add(nameLabel, gbc);
