@@ -3,17 +3,19 @@ package Function;
 import Main.User;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class viewUser extends JPanel {
+    private static final String URL = "jdbc:mysql://localhost:3306/user_management";
+    private static final String USER = "root";
+    private static final String PASSWORD = "K@miVo_02825";
     public viewUser() {
         setLayout(new BorderLayout());
+        setBackground(Color.decode("#2C2C2C"));
 
         List<User> users = getUsers();
         DefaultListModel<User> listModel = new DefaultListModel<>();
@@ -33,19 +35,27 @@ public class viewUser extends JPanel {
 
     private List<User> getUsers() {
         List<User> users = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/user_management", "root", "K@miVo_02825");
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("SELECT id, username, age, hometown FROM user_details")) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT u.id, u.username, ud.hometown, ud.age, r.name AS role " +
+                             "FROM user u " +
+                             "JOIN user_details ud ON u.id = ud.id " +
+                             "JOIN roles r ON u.role_id = r.id")) {
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String username = resultSet.getString("username");
-                int age = resultSet.getInt("age");
                 String hometown = resultSet.getString("hometown");
-                users.add(new User(id, username, hometown, age, null));
+                int age = resultSet.getInt("age");
+                String role = resultSet.getString("role");
+                users.add(new User(id, username, hometown, age, role));
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Failed to get users: " + e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Failed to get users: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
         return users;
     }
@@ -56,9 +66,10 @@ public class viewUser extends JPanel {
         private final JLabel ageLabel;
         private final JLabel hometownLabel;
 
+
         public UserCellRenderer() {
             setLayout(new GridLayout(4, 1));
-            setBackground(Color.BLUE);
+            setBackground(new Color(0x0079FF));
             setPreferredSize(new Dimension(250, 200));
             setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -82,9 +93,9 @@ public class viewUser extends JPanel {
 
         @Override
         public Component getListCellRendererComponent(JList<? extends User> list, User user, int index, boolean isSelected, boolean cellHasFocus) {
-            if (!"admin".equals(user.getRole())) {
+            if(!"admin".equals(user.getRole())){
                 idLabel.setText("<html><span style='color:yellow;'>ID:</span> " + user.getId() + "</html>");
-            } else {
+            }else{
                 idLabel.setText("");
             }
             usernameLabel.setText("<html><span style='color:yellow;'>Username:</span> " + user.getName() + "</html>");
@@ -94,6 +105,7 @@ public class viewUser extends JPanel {
             return this;
         }
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new GUI.ManageUsersGUI("admin").setVisible(true));
