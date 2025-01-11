@@ -195,11 +195,19 @@ public class ManageUsersGUI extends JFrame {
         panel.add(userLabel, gbc);
 
         panel.add(createNavigationButton("Add User", "Add User"), gbc);
+        styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
+
         panel.add(createNavigationButton("Update User", null), gbc);
+        styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
+
         panel.add(createNavigationButton("View Users", "View Users"), gbc);
+        styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
+
         panel.add(createNavigationButton("Delete User", null), gbc);
+        styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
 
         JButton exitButton = createButton("Exit");
+        styleButton(exitButton, (new Color(0xF38464)), Color.WHITE);
         exitButton.addActionListener(_ -> {
             new MainDashboardGUI("admin").setVisible(true);
             dispose();
@@ -230,6 +238,7 @@ public class ManageUsersGUI extends JFrame {
 
     private JButton createNavigationButton(String text, String targetPanel) {
         JButton button = createButton(text);
+        button.setFocusPainted(false);
         if (targetPanel != null) {
             button.addActionListener(_ -> cardLayout.show(mainRightPanel, targetPanel));
         }
@@ -250,6 +259,27 @@ public class ManageUsersGUI extends JFrame {
         button.setFocusPainted(false);
 
         return button;
+    }
+
+    private void styleButton(JButton button, Color bgColor, Color fgColor) {
+        button.setFocusPainted(false);
+        button.setBackground(bgColor);
+        button.setForeground(fgColor);
+        button.setFont(new Font("Roboto", Font.BOLD, 16));
+        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setOpaque(true);
+
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(bgColor.darker());
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(bgColor);
+            }
+        });
     }
 
     public static void main(String[] args) {
