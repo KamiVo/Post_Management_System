@@ -3,43 +3,55 @@ package GUI;
 import Function.addUser;
 import Function.viewUser;
 import Main.LoginRegisterGUI;
+import Main.MainDashboardGUI;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.function.Supplier;
+import java.util.Objects;
 
 public class ManageUsersGUI extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel mainRightPanel;
-    private static final int WIDTH = 1600;
-    private static final int HEIGHT = 900;
 
     public ManageUsersGUI(String username) {
         setTitle("User Management System");
-        setSize(WIDTH, HEIGHT);
+        setSize(1600, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(null);
 
+        // Main layered pane to manage layers
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setBounds(0, 0, getWidth(), getHeight());
+        layeredPane.setLayout(null);
+
+        // Left panel
         JPanel leftPanel = createLeftPanel(username);
-        leftPanel.setBounds(0, 0, WIDTH / 3, HEIGHT);
-        add(leftPanel);
+        leftPanel.setBounds(0, 0, getWidth() / 3, getHeight());
+        layeredPane.add(leftPanel, JLayeredPane.DEFAULT_LAYER);
 
-        JPanel topEastPanel = createLogoutButtonPanel();
-        topEastPanel.setBounds(WIDTH - 130, 10, 90, 35);
-        add(topEastPanel);
-
+        // Card layout for the right panel
         cardLayout = new CardLayout();
         mainRightPanel = new JPanel(cardLayout);
-        mainRightPanel.setBounds(WIDTH / 3, 0, WIDTH - (WIDTH / 3), HEIGHT);
+        mainRightPanel.setBounds(getWidth() / 3, 0, getWidth() - (getWidth() / 3), getHeight());
+        mainRightPanel.setBackground(Color.decode("#2C2C2C"));
 
-        loadPanelDynamically(() -> createWelcomePanel(username));
+        mainRightPanel.add(createWelcomePanel(username), "Main");
         mainRightPanel.add(createAddUserPanel(), "Add User");
         mainRightPanel.add(createViewPanel(), "View Users");
-        add(mainRightPanel);
 
+        layeredPane.add(mainRightPanel, JLayeredPane.DEFAULT_LAYER);
+
+        // Logout button panel (added to a higher layer)
+        JPanel topEastPanel = createLogoutButtonPanel();
+        topEastPanel.setBounds(getWidth() - 130, 10, 90, 35);
+        layeredPane.add(topEastPanel, JLayeredPane.PALETTE_LAYER);
+
+        add(layeredPane);
+
+        // Show the default card
         cardLayout.show(mainRightPanel, "Main");
 
         addComponentListener(new ComponentAdapter() {
@@ -47,6 +59,7 @@ public class ManageUsersGUI extends JFrame {
             public void componentResized(ComponentEvent e) {
                 int newWidth = getWidth();
                 int newHeight = getHeight();
+                layeredPane.setBounds(0, 0, newWidth, newHeight);
                 leftPanel.setBounds(0, 0, newWidth / 3, newHeight);
                 topEastPanel.setBounds(newWidth - 130, 10, 90, 35);
                 mainRightPanel.setBounds(newWidth / 3, 0, newWidth - (newWidth / 3), newHeight);
@@ -57,6 +70,8 @@ public class ManageUsersGUI extends JFrame {
 
     private JPanel createViewPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -65,15 +80,18 @@ public class ManageUsersGUI extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
         panel.add(new viewUser(), gbc);
+
         return panel;
     }
 
     private JPanel createWelcomePanel(String username) {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
+        panel.setOpaque(false);
 
         JLabel titleLabel = new JLabel("Welcome " + username, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 36));
+        titleLabel.setForeground(Color.WHITE);
+
         panel.add(titleLabel, BorderLayout.CENTER);
 
         return panel;
@@ -81,18 +99,27 @@ public class ManageUsersGUI extends JFrame {
 
     private JPanel createAddUserPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(Color.WHITE);
+        panel.setOpaque(false);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
         JLabel nameLabel = new JLabel("Add Username:");
         nameLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        nameLabel.setForeground(Color.WHITE);
+
         JTextField nameField = new JTextField(20);
+
         JLabel hometownLabel = new JLabel("Add Hometown:");
         hometownLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        hometownLabel.setForeground(Color.WHITE);
+
         JTextField hometownField = new JTextField(20);
+
         JLabel ageLabel = new JLabel("Add Age:");
         ageLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        ageLabel.setForeground(Color.WHITE);
+
         JTextField ageField = new JTextField(20);
 
         JButton submitButton = createButton("Submit");
@@ -110,8 +137,10 @@ public class ManageUsersGUI extends JFrame {
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.EAST;
         panel.add(nameLabel, gbc);
+
         gbc.gridy = 1;
         panel.add(hometownLabel, gbc);
+
         gbc.gridy = 2;
         panel.add(ageLabel, gbc);
 
@@ -119,10 +148,13 @@ public class ManageUsersGUI extends JFrame {
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(nameField, gbc);
+
         gbc.gridy = 1;
         panel.add(hometownField, gbc);
+
         gbc.gridy = 2;
         panel.add(ageField, gbc);
+
         gbc.gridy = 3;
         panel.add(submitButton, gbc);
 
@@ -148,6 +180,7 @@ public class ManageUsersGUI extends JFrame {
     private JPanel createLeftPanel(String username) {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.BLACK);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = GridBagConstraints.RELATIVE;
@@ -165,22 +198,31 @@ public class ManageUsersGUI extends JFrame {
         panel.add(createNavigationButton("Update User", null), gbc);
         panel.add(createNavigationButton("View Users", "View Users"), gbc);
         panel.add(createNavigationButton("Delete User", null), gbc);
-        panel.add(createNavigationButton("Back to Main", "Main"), gbc);
+
+        JButton exitButton = createButton("Exit");
+        exitButton.addActionListener(_ -> {
+            new MainDashboardGUI("admin").setVisible(true);
+            dispose();
+        });
+        panel.add(exitButton, gbc);
 
         return panel;
     }
 
     private JPanel createLogoutButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        panel.setOpaque(false);
 
         JButton logoutButton = new JButton("Logout");
         logoutButton.setPreferredSize(new Dimension(80, 30));
         logoutButton.setFont(new Font("Arial", Font.BOLD, 12));
         logoutButton.setFocusPainted(false);
+
         logoutButton.addActionListener(_ -> {
             new LoginRegisterGUI().setVisible(true);
             dispose();
         });
+
         panel.add(logoutButton);
 
         return panel;
@@ -195,22 +237,19 @@ public class ManageUsersGUI extends JFrame {
     }
 
     private JLabel createScaledLogo() {
-        ImageIcon originalIcon = new ImageIcon(getClass().getResource("/user.png"));
+        ImageIcon originalIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/user.png")));
         Image scaledImage = originalIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
         return new JLabel(new ImageIcon(scaledImage));
     }
 
     private JButton createButton(String text) {
         JButton button = new JButton(text);
+
         button.setPreferredSize(new Dimension(200, 50));
         button.setFont(new Font("Arial", Font.BOLD, 16));
         button.setFocusPainted(false);
-        return button;
-    }
 
-    private void loadPanelDynamically(Supplier<JPanel> panelSupplier) {
-        JPanel panel = panelSupplier.get();
-        mainRightPanel.add(panel, "Main");
+        return button;
     }
 
     public static void main(String[] args) {

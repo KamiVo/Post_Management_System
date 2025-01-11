@@ -13,44 +13,22 @@ import java.util.List;
 
 public class viewUser extends JPanel {
     public viewUser() {
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
-        mainPanel.setOpaque(false);
+        setLayout(new BorderLayout());
 
         List<User> users = getUsers();
-
+        DefaultListModel<User> listModel = new DefaultListModel<>();
         for (User user : users) {
-            JPanel userPanel = createUserPanel(user);
-            userPanel.setBackground(Color.BLUE);
-            userPanel.setPreferredSize(new Dimension(300, 200));
-            userPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            userPanel.setLayout(new GridLayout(4, 1));
-
-            mainPanel.add(userPanel);
+            listModel.addElement(user);
         }
 
-        JScrollPane scrollPane = new JScrollPane(mainPanel);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        scrollPane.setPreferredSize(new Dimension(800, 300));
-        scrollPane.setOpaque(false);
+        JList<User> userList = new JList<>(listModel);
+        userList.setCellRenderer(new UserCellRenderer());
+        JScrollPane scrollPane = new JScrollPane(userList);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setPreferredSize(new Dimension(1000, 600));
 
-        add(scrollPane);
-    }
-
-    private JPanel createUserPanel(User user) {
-        JPanel panel = new JPanel();
-        panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        panel.setLayout(new GridLayout(4, 1));
-
-        if (!"admin".equals(user.getRole())) {
-            panel.add(createLabel("<html><span style='color:yellow;'>ID:</span> " + user.getId() + "</html>"));
-        }
-        panel.add(createLabel("<html><span style='color:yellow;'>Username:</span> " + user.getName() + "</html>"));
-        panel.add(createLabel("<html><span style='color:yellow;'>Age:</span> " + user.getAge() + "</html>"));
-        panel.add(createLabel("<html><span style='color:yellow;'>Hometown:</span> " + user.getHometown() + "</html>"));
-
-        return panel;
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     private List<User> getUsers() {
@@ -72,12 +50,49 @@ public class viewUser extends JPanel {
         return users;
     }
 
-    private JLabel createLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("Arial", Font.BOLD, 20));
-        label.setForeground(Color.WHITE);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        return label;
+    private static class UserCellRenderer extends JPanel implements ListCellRenderer<User> {
+        private final JLabel idLabel;
+        private final JLabel usernameLabel;
+        private final JLabel ageLabel;
+        private final JLabel hometownLabel;
+
+        public UserCellRenderer() {
+            setLayout(new GridLayout(4, 1));
+            setBackground(Color.BLUE);
+            setPreferredSize(new Dimension(250, 200));
+            setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+            idLabel = createLabel();
+            usernameLabel = createLabel();
+            ageLabel = createLabel();
+            hometownLabel = createLabel();
+
+            add(idLabel);
+            add(usernameLabel);
+            add(ageLabel);
+            add(hometownLabel);
+        }
+
+        private JLabel createLabel() {
+            JLabel label = new JLabel();
+            label.setFont(new Font("Arial", Font.BOLD, 20));
+            label.setForeground(Color.WHITE);
+            return label;
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList<? extends User> list, User user, int index, boolean isSelected, boolean cellHasFocus) {
+            if (!"admin".equals(user.getRole())) {
+                idLabel.setText("<html><span style='color:yellow;'>ID:</span> " + user.getId() + "</html>");
+            } else {
+                idLabel.setText("");
+            }
+            usernameLabel.setText("<html><span style='color:yellow;'>Username:</span> " + user.getName() + "</html>");
+            ageLabel.setText("<html><span style='color:yellow;'>Age:</span> " + user.getAge() + "</html>");
+            hometownLabel.setText("<html><span style='color:yellow;'>Hometown:</span> " + user.getHometown() + "</html>");
+
+            return this;
+        }
     }
 
     public static void main(String[] args) {
