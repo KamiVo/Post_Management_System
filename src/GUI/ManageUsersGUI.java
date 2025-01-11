@@ -187,10 +187,24 @@ public class ManageUsersGUI extends JFrame {
         JLabel idLabel = new JLabel("Enter User ID to Edit:");
         idLabel.setFont(new Font("Arial", Font.BOLD, 20));
         idLabel.setForeground(Color.WHITE);
+
         JTextField idField = new JTextField(20);
+        idField.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    handleFetchUser(idField.getText());
+                    idField.setText("");
+                }
+            }
+        });
 
         JButton fetchUserButton = createButton("Next");
-        fetchUserButton.addActionListener(_ -> handleFetchUser(idField.getText()));
+        fetchUserButton.addActionListener(_ -> {
+            handleFetchUser(idField.getText());
+            idField.setText("");
+        });
+        fetchUserButton.setFocusPainted(false);
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -325,6 +339,9 @@ public class ManageUsersGUI extends JFrame {
         gbc.gridy++;
         panel.add(editAllCheckBox, gbc);
 
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setOpaque(false);
+
         JButton nextButton = createButton("Next");
         nextButton.addActionListener(_ -> handleEditSelection(editNameCheckBox.isSelected(),
                 editHometownCheckBox.isSelected(),
@@ -332,18 +349,20 @@ public class ManageUsersGUI extends JFrame {
                 editAllCheckBox.isSelected(),
                 panel
         ));
-
-        gbc.gridy++;
-        panel.add(nextButton, gbc);
+        buttonPanel.add(nextButton);
 
         JButton backButton = createButton("Back");
         backButton.addActionListener(_ -> editUserCardLayout.show(editUserCardPanel, "EditUserId"));
+        buttonPanel.add(backButton);
+
         gbc.gridy++;
-        panel.add(backButton, gbc);
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(buttonPanel, gbc);
 
         return panel;
     }
-
 
     private void handleEditSelection(boolean editName, boolean editHometown, boolean editAge, boolean editAll, JPanel selectionPanel) {
         if(!editName && !editHometown && !editAge && !editAll){
@@ -374,7 +393,6 @@ public class ManageUsersGUI extends JFrame {
             gbc.gridx = 1;
             gbc.anchor = GridBagConstraints.WEST;
             editPanel.add(newNameField, gbc);
-
         }
 
         if (editHometown || editAll) {
@@ -391,7 +409,6 @@ public class ManageUsersGUI extends JFrame {
             gbc.gridx = 1;
             gbc.anchor = GridBagConstraints.WEST;
             editPanel.add(newHometownField, gbc);
-
         }
 
         if (editAge || editAll) {
@@ -409,31 +426,31 @@ public class ManageUsersGUI extends JFrame {
             gbc.anchor = GridBagConstraints.WEST;
             editPanel.add(newAgeField, gbc);
         }
-        gbc.gridx=1;
-        gbc.anchor = GridBagConstraints.WEST;
 
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setOpaque(false);
 
         JButton submitButton = createButton("Submit");
         submitButton.addActionListener(_ -> handleEditUser(userIdToEdit,
-                editName || editAll ? editTextFields.size()>0 ?  editTextFields.get(0).getText() : null : null ,
-                editHometown || editAll ? editTextFields.size()>1 ?  editTextFields.get(1).getText() : null : null,
-                editAge || editAll ? editTextFields.size()>2 ?  editTextFields.get(2).getText() : null : null,
+                editName || editAll ? editTextFields.size() > 0 ? editTextFields.get(0).getText() : null : null,
+                editHometown || editAll ? editTextFields.size() > 1 ? editTextFields.get(1).getText() : null : null,
+                editAge || editAll ? editTextFields.size() > 2 ? editTextFields.get(2).getText() : null : null,
                 editAll
         ));
-
-        gbc.gridy = gridY++;
-        editPanel.add(submitButton, gbc);
+        buttonPanel.add(submitButton);
 
         JButton backButton = createButton("Back");
         backButton.addActionListener(_ -> editUserCardLayout.show(editUserCardPanel, "EditUserSelection"));
+        buttonPanel.add(backButton);
+
         gbc.gridy = gridY++;
-        editPanel.add(backButton, gbc);
-
-
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        editPanel.add(buttonPanel, gbc);
 
         editPanel.revalidate();
         editPanel.repaint();
-
     }
 
     private JPanel createEditUserEditPanel() {

@@ -90,19 +90,27 @@ public class LoginRegisterGUI extends JFrame {
         loginButton.addActionListener(_ -> {
             if (authenticateUser(userText.getText(), new String(passText.getPassword()))) {
                 new MainDashboardGUI(userText.getText()).setVisible(true);
+                userText.setText("");
+                passText.setText("");
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(null, "Invalid username or password");
             }
         });
 
-        registerButton.addActionListener(_ -> cardLayout.show(mainPanel, "Register"));
+        registerButton.addActionListener(_ -> {
+            cardLayout.show(mainPanel, "Register");
+            userText.setText("");
+            passText.setText("");
+        });
 
         // Login on Enter key
         passText.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                     loginButton.doClick();
+                    userText.setText("");
+                    passText.setText("");
                 }
             }
         });
@@ -184,7 +192,12 @@ public class LoginRegisterGUI extends JFrame {
             }
         });
 
-        backButton.addActionListener(_ -> cardLayout.show(mainPanel, "Login"));
+        backButton.addActionListener(_ -> {
+            cardLayout.show(mainPanel, "Login");
+            userText.setText("");
+            passText.setText("");
+            confirmPassText.setText("");
+        });
 
         // Register on Enter key
         confirmPassText.addKeyListener(new java.awt.event.KeyAdapter() {
