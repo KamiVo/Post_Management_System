@@ -9,8 +9,8 @@ public class LoginRegisterGUI extends JFrame {
     public static Connection connection;
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
-    int width = 500;
-    int height = 600;
+    int width = 400;
+    int height = 650;
 
     public LoginRegisterGUI() {
         setTitle("User and Post Management System");

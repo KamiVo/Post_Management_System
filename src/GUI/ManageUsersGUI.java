@@ -461,6 +461,13 @@ public class ManageUsersGUI extends JFrame {
 
 
     private void handleEditUser(int id, String newName, String newHometown, String newAge, boolean editAll) {
+        if ((newName == null || newName.trim().isEmpty()) &&
+                (newHometown == null || newHometown.trim().isEmpty()) &&
+                (newAge == null || newAge.trim().isEmpty())) {
+            JOptionPane.showMessageDialog(this, "Fields cannot be blank", "Input Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         try {
             Integer age = newAge == null ? null : Integer.parseInt(newAge);
             boolean success = new editUser().editUser(id, newName, newHometown, age, editAll);
