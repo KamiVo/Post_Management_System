@@ -9,14 +9,16 @@ public class LoginRegisterGUI extends JFrame {
     public static Connection connection;
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
-    int width = 1600;
-    int height = 900;
+    int width = 500;
+    int height = 600;
 
     public LoginRegisterGUI() {
         setTitle("User and Post Management System");
-        setSize(1600, 900);
+        setSize(width, height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setResizable(false);
+        setExtendedState(JFrame.NORMAL);
 
         setLayout(new BorderLayout());
         GradientPanel gradientPanel = new GradientPanel();
@@ -28,8 +30,7 @@ public class LoginRegisterGUI extends JFrame {
         mainPanel.setBounds(width / 3, 0, width - (width / 3), height);
         mainPanel.setOpaque(false); // Make main panel transparent
 
-        loadPanelDynamically(this::createLoginPanel);
-//        mainPanel.add(createLoginPanel(), "Login");
+        mainPanel.add(createLoginPanel(), "Login");
         mainPanel.add(createRegisterPanel(), "Register");
 
         gradientPanel.add(mainPanel, BorderLayout.CENTER);
@@ -50,19 +51,42 @@ public class LoginRegisterGUI extends JFrame {
         JPanel loginPanel = new JPanel(new GridBagLayout());
         loginPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 1.0;
+        gbc.gridx = 0;
 
+        // Title Label
+        JLabel titleLabel = new JLabel("Login");
+        titleLabel.setFont(new Font("Roboto", Font.BOLD, 50));
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setForeground(new Color(243, 33, 148)); // Modern blue color
+
+        // Username Label
         JLabel userLabel = new JLabel("Username or Email:");
-        userLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        JTextField userText = new JTextField(18);
+        userLabel.setFont(new Font("Roboto", Font.PLAIN, 18));
 
+        // Username Field
+        JTextField userText = createModernTextField();
+
+        // Password Label
         JLabel passLabel = new JLabel("Password:");
-        passLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        JPasswordField passText = new JPasswordField(18);
+        passLabel.setFont(new Font("Roboto", Font.PLAIN, 18));
 
+        // Password Field
+        JPasswordField passText = createModernPasswordField();
+
+        // Login Button
         JButton loginButton = createButton("Login");
-        JButton registerButton = createButton("Register");
+        styleButton(loginButton, new Color(76, 175, 80), Color.WHITE);// Green background
+        loginPanel.add(loginButton, gbc);
 
+        // Register Button
+        JButton registerButton = createButton("Register");
+        styleButton(registerButton, new Color(33, 150, 243), Color.WHITE); // Blue background
+
+        // Add action listeners
         loginButton.addActionListener(_ -> {
             if (authenticateUser(userText.getText(), new String(passText.getPassword()))) {
                 new MainDashboardGUI(userText.getText()).setVisible(true);
@@ -74,6 +98,7 @@ public class LoginRegisterGUI extends JFrame {
 
         registerButton.addActionListener(_ -> cardLayout.show(mainPanel, "Register"));
 
+        // Login on Enter key
         passText.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
@@ -82,30 +107,62 @@ public class LoginRegisterGUI extends JFrame {
             }
         });
 
-        addComponentsToPanel(loginPanel, gbc, userLabel, userText, passLabel, passText, loginButton, registerButton);
+        addComponentsToPanel(loginPanel, gbc, titleLabel, userLabel, userText, passLabel, passText);
+
+        // Add buttons to a separate panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(loginButton);
+        buttonPanel.add(registerButton);
+        gbc.gridy++;
+        loginPanel.add(buttonPanel, gbc);
+
         return loginPanel;
     }
+
 
     private JPanel createRegisterPanel() {
         JPanel regPanel = new JPanel(new GridBagLayout());
         regPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 1.0;
+        gbc.gridx = 0;
 
+        // Title Label
+        JLabel titleLabel = new JLabel("Register");
+        titleLabel.setFont(new Font("Roboto", Font.BOLD, 50));
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setForeground(new Color(243, 33, 148)); // Modern blue color
+
+        // Username or Email Label and Field
         JLabel userLabel = new JLabel("Username or Email:");
         userLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        JTextField userText = new JTextField(20);
 
+        // Username or Email Field
+        JTextField userText = createModernTextField();
+
+        // Password Label and Field
         JLabel passLabel = new JLabel("Password:");
         passLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        JPasswordField passText = new JPasswordField(20);
 
+        // Password Field
+        JPasswordField passText = createModernPasswordField();
+
+        // Confirm Password Label and Field
         JLabel confirmPassLabel = new JLabel("Confirm Password:");
         confirmPassLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        JPasswordField confirmPassText = new JPasswordField(20);
+
+        // Confirm Password Field
+        JPasswordField confirmPassText = createModernPasswordField();
 
         JButton registerButton = createButton("Register");
+        styleButton(registerButton, new Color(76, 175, 80), Color.WHITE); // Green background
+
         JButton backButton = createButton("Back");
+        styleButton(backButton, new Color(244, 67, 54), Color.WHITE); // Red background
 
         registerButton.addActionListener(_ -> {
             try {
@@ -129,15 +186,33 @@ public class LoginRegisterGUI extends JFrame {
 
         backButton.addActionListener(_ -> cardLayout.show(mainPanel, "Login"));
 
-        addComponentsToPanel(regPanel, gbc, userLabel, userText, passLabel, passText, confirmPassLabel, confirmPassText, registerButton, backButton);
+        // Register on Enter key
+        confirmPassText.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    registerButton.doClick();
+                }
+            }
+        });
+
+        addComponentsToPanel(regPanel, gbc, titleLabel, userLabel, userText, passLabel, passText, confirmPassLabel, confirmPassText);
+
+        // Add buttons to a separate panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(registerButton);
+        buttonPanel.add(backButton);
+        gbc.gridy++;
+        regPanel.add(buttonPanel, gbc);
+
         return regPanel;
     }
 
     private void addComponentsToPanel(JPanel panel, GridBagConstraints gbc, JComponent... components) {
         for (int i = 0; i < components.length; i++) {
-            gbc.gridx = i % 2 == 0 ? 0 : 1;
-            gbc.gridy = i / 2;
-            gbc.anchor = i % 2 == 0 ? GridBagConstraints.EAST : GridBagConstraints.WEST;
+            gbc.gridx = 0; // Keep x position constant
+            gbc.gridy = i; // Increment y position for each component
+            gbc.anchor = GridBagConstraints.CENTER; // Center alignment
             panel.add(components[i], gbc);
         }
     }
@@ -191,6 +266,80 @@ public class LoginRegisterGUI extends JFrame {
         }
     }
 
+    private JTextField createModernTextField() {
+        JTextField textField = new JTextField(18);
+        textField.setPreferredSize(new Dimension(500, 40));
+        textField.setFont(new Font("Roboto", Font.PLAIN, 18));
+        textField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Add padding
+        textField.setBackground(new Color(245, 245, 245)); // Light background
+        textField.setForeground(new Color(50, 50, 50)); // Dark text color
+        textField.setCaretColor(new Color(33, 150, 243)); // Blue caret (cursor)
+        textField.setOpaque(true);
+
+        // Add rounded border with hover effect
+        textField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 2), // Default border
+                BorderFactory.createEmptyBorder(5, 10, 5, 10) // Padding
+        ));
+
+        textField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                textField.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(33, 150, 243), 2), // Blue border on focus
+                        BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                ));
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                textField.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(200, 200, 200), 2), // Default border
+                        BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                ));
+            }
+        });
+
+        return textField;
+    }
+
+    private JPasswordField createModernPasswordField() {
+        JPasswordField passwordField = new JPasswordField(18);
+        passwordField.setPreferredSize(new Dimension(500, 40));
+        passwordField.setFont(new Font("Roboto", Font.PLAIN, 18));
+        passwordField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Add padding
+        passwordField.setBackground(new Color(245, 245, 245)); // Light background
+        passwordField.setForeground(new Color(50, 50, 50)); // Dark text color
+        passwordField.setCaretColor(new Color(33, 150, 243)); // Blue caret (cursor)
+        passwordField.setOpaque(true);
+
+        // Add rounded border with hover effect
+        passwordField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 2), // Default border
+                BorderFactory.createEmptyBorder(5, 10, 5, 10) // Padding
+        ));
+
+        passwordField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                passwordField.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(33, 150, 243), 2), // Blue border on focus
+                        BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                ));
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                passwordField.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(200, 200, 200), 2), // Default border
+                        BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                ));
+            }
+        });
+
+        return passwordField;
+    }
+
     static class GradientPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
@@ -206,9 +355,26 @@ public class LoginRegisterGUI extends JFrame {
         }
     }
 
-    private void loadPanelDynamically(Supplier<JPanel> panelSupplier) {
-        JPanel panel = panelSupplier.get();
-        mainPanel.add(panel, "Login");
+    // Helper method to style buttons
+    private void styleButton(JButton button, Color bgColor, Color fgColor) {
+        button.setFocusPainted(false);
+        button.setBackground(bgColor);
+        button.setForeground(fgColor);
+        button.setFont(new Font("Roboto", Font.BOLD, 16));
+        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setOpaque(true);
+
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(bgColor.darker());
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(bgColor);
+            }
+        });
     }
 
     public static void main(String[] args) {
