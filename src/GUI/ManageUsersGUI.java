@@ -419,6 +419,7 @@ public class ManageUsersGUI extends JFrame {
     private JPanel createEditUserSelectionPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
@@ -477,7 +478,8 @@ public class ManageUsersGUI extends JFrame {
         buttonPanel.setOpaque(false);
 
         JButton nextButton = createButton("Next");
-        nextButton.addActionListener(_ -> handleEditSelection(editNameCheckBox.isSelected(),
+        nextButton.addActionListener(_ -> handleEditSelection(
+                editNameCheckBox.isSelected(),
                 editHometownCheckBox.isSelected(),
                 editAgeCheckBox.isSelected(),
                 editAllCheckBox.isSelected()
@@ -513,12 +515,15 @@ public class ManageUsersGUI extends JFrame {
         int gridY = 0;
 
         if (editName || editAll) {
+
             JLabel newNameLabel = new JLabel("New Name:");
             newNameLabel.setForeground(Color.WHITE);
             newNameLabel.setFont(new Font("Arial", Font.BOLD, 20));
+
             JTextField newNameField = new JTextField(20);
             newNameField.setVisible(true);
             editTextFields.add(newNameField);
+
             gbc.gridx = 0;
             gbc.gridy = gridY++;
             gbc.anchor = GridBagConstraints.EAST;
@@ -669,16 +674,17 @@ public class ManageUsersGUI extends JFrame {
         panel.add(createNavigationButton("Add User", "Add User"), gbc);
         styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
 
-        panel.add(createNavigationButton("Edit User", "Edit User"), gbc);
-        styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
-
         JButton viewUserButton  = createNavigationButton("View Users", "View Users");
         viewUserButton.addActionListener(e-> {
             mainRightPanel.remove(viewUser);
             mainRightPanel.add(createViewPanel(), "View Users");
             cardLayout.show(mainRightPanel, "View Users");
         });
+        styleButton(viewUserButton, (new Color(0xF38464)), Color.WHITE);
         panel.add(viewUserButton, gbc);
+
+        panel.add(createNavigationButton("Edit User", "Edit User"), gbc);
+        styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
 
         styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
 

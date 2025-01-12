@@ -1,5 +1,11 @@
 USE user_management;
 
+-- Drop all tables if they exist
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS user_details;
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS roles;
+
 -- Create the roles table
 CREATE TABLE roles (
                        id INT AUTO_INCREMENT PRIMARY KEY,
@@ -9,36 +15,34 @@ CREATE TABLE roles (
 -- Insert roles
 INSERT INTO roles (name) VALUES ('admin'), ('user');
 
--- Create the user_credentials table with a unique index on username
-CREATE TABLE user_credentials (
-                                  id INT AUTO_INCREMENT PRIMARY KEY,
-                                  username VARCHAR(255) UNIQUE,
-                                  email VARCHAR(255),
-                                  password VARCHAR(255) NOT NULL,
-                                  role_id INT,
-                                  FOREIGN KEY (role_id) REFERENCES roles(id)
+-- Create the user table with a unique index on username
+CREATE TABLE user (
+                      id INT AUTO_INCREMENT PRIMARY KEY UNIQUE,
+                      username VARCHAR(255) UNIQUE,
+                      email VARCHAR(255),
+                      password VARCHAR(255) NOT NULL,
+                      role_id INT,
+                      FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
 -- Create the user_details table
 CREATE TABLE user_details (
-                              id INT AUTO_INCREMENT PRIMARY KEY,
-                              username VARCHAR(255),
+                              id INT PRIMARY KEY,
                               age INT,
                               hometown VARCHAR(255),
-                              FOREIGN KEY (username) REFERENCES user_credentials(username)
+                              FOREIGN KEY (id) REFERENCES user(id) ON DELETE CASCADE
 );
 
 -- Insert user credentials
-INSERT INTO user_credentials (username, email, password, role_id) VALUES
-                                                                      ('admin', '', 'admin', (SELECT id FROM roles WHERE name = 'admin')),
-                                                                      ('kamivo', 'kamivo@gmail.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-                                                                      ('johnvo', 'johnvo@gmail.com', '1', (SELECT id FROM roles WHERE name = 'user'));
+INSERT INTO user (username, email, password, role_id) VALUES
+                                                          ('admin', '', 'admin', (SELECT id FROM roles WHERE name = 'admin')),
+                                                          ('kamivo', 'kamivo@gmail.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('johnvo', 'johnvo@gmail.com', '1', (SELECT id FROM roles WHERE name = 'user'));
 
 -- Insert user details
-INSERT INTO user_details (username, age, hometown) VALUES
-                                                       ('admin', NULL, ''),
-                                                       ('kamivo', 28, 'Da Nang'),
-                                                       ('johnvo', 22, 'Viet Nam');
+INSERT INTO user_details (id, age, hometown) VALUES
+                                                 ((SELECT id FROM user WHERE username = 'kamivo'), 28, 'DaNang'),
+                                                 ((SELECT id FROM user WHERE username = 'johnvo'), 22, 'VietNam');
 
 -- Create the posts table
 CREATE TABLE posts (
@@ -47,54 +51,56 @@ CREATE TABLE posts (
                        content TEXT NOT NULL,
                        author_id INT,
                        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                       FOREIGN KEY (author_id) REFERENCES user_credentials(id)
+                       FOREIGN KEY (author_id) REFERENCES user(id)
 );
 
 -- Insert posts
 INSERT INTO posts (title, content, author_id) VALUES
-                                                  ('First Post', 'This is the content of the first post.', (SELECT id FROM user_credentials WHERE username = 'kamivo')),
-                                                  ('Second Post', 'This is the content of the second post.', (SELECT id FROM user_credentials WHERE username = 'johnvo'));
--- Insert user credentials
-INSERT INTO user (username, email, password, role_id) VALUES
-    ('alice123', 'alice123@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('bob456', 'bob456@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('charlie789', 'charlie789@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('dave101', 'dave101@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('eve202', 'eve202@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('frank303', 'frank303@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('grace404', 'grace404@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('hank505', 'hank505@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('ivy606', 'ivy606@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('jack707', 'jack707@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('kate808', 'kate808@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('leo909', 'leo909@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('mia1010', 'mia1010@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('nick1111', 'nick1111@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('olivia1212', 'olivia1212@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('paul1313', 'paul1313@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('quinn1414', 'quinn1414@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('rose1515', 'rose1515@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('sam1616', 'sam1616@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
-    ('tina1717', 'tina1717@example.com', '1', (SELECT id FROM roles WHERE name = 'user'));
+                                                  ('First Post', 'This is the content of the first post.', (SELECT id FROM user WHERE username = 'kamivo')),
+                                                  ('Second Post', 'This is the content of the second post.', (SELECT id FROM user WHERE username = 'johnvo'));
 
--- Insert user details
-INSERT INTO user_details (username, hometown, age) VALUES ('alice123', 'Springfield', 25);
-INSERT INTO user_details (username, hometown, age) VALUES ('bob456', 'Shelbyville', 30);
-INSERT INTO user_details (username, hometown, age) VALUES ('charlie789', 'Ogdenville', 22);
-INSERT INTO user_details (username, hometown, age) VALUES ('dave101', 'North Haverbrook', 28);
-INSERT INTO user_details (username, hometown, age) VALUES ('eve202', 'Capital City', 35);
-INSERT INTO user_details (username, hometown, age) VALUES ('frank303', 'Cypress Creek', 40);
-INSERT INTO user_details (username, hometown, age) VALUES ('grace404', 'Springfield', 27);
-INSERT INTO user_details (username, hometown, age) VALUES ('hank505', 'Shelbyville', 32);
-INSERT INTO user_details (username, hometown, age) VALUES ('ivy606', 'Ogdenville', 24);
-INSERT INTO user_details (username, hometown, age) VALUES ('jack707', 'North Haverbrook', 29);
-INSERT INTO user_details (username, hometown, age) VALUES ('kate808', 'Capital City', 26);
-INSERT INTO user_details (username, hometown, age) VALUES ('leo909', 'Cypress Creek', 31);
-INSERT INTO user_details (username, hometown, age) VALUES ('mia1010', 'Springfield', 23);
-INSERT INTO user_details (username, hometown, age) VALUES ('nick1111', 'Shelbyville', 34);
-INSERT INTO user_details (username, hometown, age) VALUES ('olivia1212', 'Ogdenville', 36);
-INSERT INTO user_details (username, hometown, age) VALUES ('paul1313', 'North Haverbrook', 38);
-INSERT INTO user_details (username, hometown, age) VALUES ('quinn1414', 'Capital City', 21);
-INSERT INTO user_details (username, hometown, age) VALUES ('rose1515', 'Cypress Creek', 33);
-INSERT INTO user_details (username, hometown, age) VALUES ('sam1616', 'Springfield', 37);
-INSERT INTO user_details (username, hometown, age) VALUES ('tina1717', 'Shelbyville', 39);
+-- Insert additional user credentials
+INSERT INTO user (username, email, password, role_id) VALUES
+                                                          ('alice123', 'alice123@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('bob456', 'bob456@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('charlie789', 'charlie789@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('dave101', 'dave101@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('eve202', 'eve202@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('frank303', 'frank303@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('grace404', 'grace404@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('hank505', 'hank505@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('ivy606', 'ivy606@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('jack707', 'jack707@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('kate808', 'kate808@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('leo909', 'leo909@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('mia1010', 'mia1010@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('nick1111', 'nick1111@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('olivia1212', 'olivia1212@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('paul1313', 'paul1313@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('quinn1414', 'quinn1414@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('rose1515', 'rose1515@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('sam1616', 'sam1616@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
+                                                          ('tina1717', 'tina1717@example.com', '1', (SELECT id FROM roles WHERE name = 'user'));
+
+-- Insert additional user details
+INSERT INTO user_details (id, age, hometown) VALUES
+                                                 ((SELECT id FROM user WHERE username = 'alice123'), 25, 'Springfield'),
+                                                 ((SELECT id FROM user WHERE username = 'bob456'), 30, 'Shelbyville'),
+                                                 ((SELECT id FROM user WHERE username = 'charlie789'), 22, 'Ogdenville'),
+                                                 ((SELECT id FROM user WHERE username = 'dave101'), 28, 'North Haverbrook'),
+                                                 ((SELECT id FROM user WHERE username = 'eve202'), 35, 'Capital City'),
+                                                 ((SELECT id FROM user WHERE username = 'frank303'), 40, 'Cypress Creek'),
+                                                 ((SELECT id FROM user WHERE username = 'grace404'), 27, 'Springfield'),
+                                                 ((SELECT id FROM user WHERE username = 'hank505'), 32, 'Shelbyville'),
+                                                 ((SELECT id FROM user WHERE username = 'ivy606'), 24, 'Ogdenville'),
+                                                 ((SELECT id FROM user WHERE username = 'jack707'), 29, 'North Haverbrook'),
+                                                 ((SELECT id FROM user WHERE username = 'kate808'), 26, 'Capital City'),
+                                                 ((SELECT id FROM user WHERE username = 'leo909'), 31, 'Cypress Creek'),
+                                                 ((SELECT id FROM user WHERE username = 'mia1010'), 23, 'Springfield'),
+                                                 ((SELECT id FROM user WHERE username = 'nick1111'), 34, 'Shelbyville'),
+                                                 ((SELECT id FROM user WHERE username = 'olivia1212'), 36, 'Ogdenville'),
+                                                 ((SELECT id FROM user WHERE username = 'paul1313'), 38, 'North Haverbrook'),
+                                                 ((SELECT id FROM user WHERE username = 'quinn1414'), 21, 'Capital City'),
+                                                 ((SELECT id FROM user WHERE username = 'rose1515'), 33, 'Cypress Creek'),
+                                                 ((SELECT id FROM user WHERE username = 'sam1616'), 37, 'Springfield'),
+                                                 ((SELECT id FROM user WHERE username = 'tina1717'), 39, 'Shelbyville');

@@ -4,11 +4,10 @@ public class Post {
     private final int id;
     private String title;
     private String content;
-    private final User author;
+    private final int author;
     private String date;
 
-
-    public Post(int id, String title, String content, User author, String date) {
+    public Post(int id, String title, String content, int author, String date) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -36,7 +35,7 @@ public class Post {
         this.content = content;
     }
 
-    public User getAuthor() {
+    public int getAuthor() {
         return author;
     }
 
@@ -47,5 +46,4 @@ public class Post {
     public void setDate(String date) {
         this.date = date;
     }
-
 }
