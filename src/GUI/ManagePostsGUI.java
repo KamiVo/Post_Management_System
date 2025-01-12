@@ -733,13 +733,18 @@ public class ManagePostsGUI extends JFrame {
     }
 
     private int getAuthorIdByUsername(String username) {
-        String query = "SELECT id FROM user WHERE username = ?";
+        String query = "SELECT id, role_id FROM user WHERE username = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, username);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getInt("id");
+                    int roleId = resultSet.getInt("role_id");
+                    if (roleId == 1) {
+                        return -1; // Special value for admin
+                    } else {
+                        return resultSet.getInt("id");
+                    }
                 }
             }
         } catch (SQLException e) {

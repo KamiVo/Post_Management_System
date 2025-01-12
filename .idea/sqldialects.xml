@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/src/Function/addUser.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/src/Function/viewUser.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/src/Main/LoginRegisterGUI.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/src/Main/UserRole.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/Resources/user_management-2025_01_12_22_55_18-dump.sql" dialect="MySQL" />
   </component>
 </project>

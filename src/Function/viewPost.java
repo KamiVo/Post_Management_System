@@ -37,10 +37,12 @@ public class viewPost extends JPanel {
 
     private List<Post> getPosts() {
         List<Post> posts = new ArrayList<>();
-        String query = "SELECT id, title, content, author_id, date FROM posts WHERE author_id = ?";
+        String query = authorId == -1 ? "SELECT id, title, content, author_id, date FROM posts" : "SELECT id, title, content, author_id, date FROM posts WHERE author_id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, authorId);
+            if (authorId != -1) {
+                preparedStatement.setInt(1, authorId);
+            }
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     int id = resultSet.getInt("id");

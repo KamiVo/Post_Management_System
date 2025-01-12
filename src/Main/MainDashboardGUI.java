@@ -9,8 +9,10 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
 public class MainDashboardGUI extends JFrame {
+    private final String username;
 
     public MainDashboardGUI(String username) {
+        this.username = username;
         setTitle("User and Post Management System");
         setSize(1600, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -93,7 +95,7 @@ public class MainDashboardGUI extends JFrame {
         styleButton(button, new Color(0x30A60A), Color.WHITE);
         button.setPreferredSize(new Dimension(250, 40));
         button.addActionListener(_ -> {
-            new ManageUsersGUI("User").setVisible(true);
+            new ManageUsersGUI(this.username).setVisible(true);
             dispose();
         });
         return button;
@@ -105,7 +107,7 @@ public class MainDashboardGUI extends JFrame {
         styleButton(button, new Color(0xF38464), Color.WHITE);
         button.setPreferredSize(new Dimension(250, 40));
         button.addActionListener(_ -> {
-            new ManagePostsGUI("Posts").setVisible(true);
+            new ManagePostsGUI(this.username).setVisible(true);
             dispose();
         });
         return button;
