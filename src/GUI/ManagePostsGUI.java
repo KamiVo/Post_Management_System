@@ -237,7 +237,7 @@ public class ManagePostsGUI extends JFrame {
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
-        viewPost = new viewPost();
+        viewPost = new viewPost(authorId);
         panel.add(viewPost, gbc);
 
         return panel;
@@ -502,7 +502,7 @@ public class ManagePostsGUI extends JFrame {
         }
 
         try {
-            new editPost().editPost(PostIdToEdit, newTitle, newContent);
+            new editPost().editPost(PostIdToEdit, authorId,newTitle, newContent);
             JOptionPane.showMessageDialog(this, "Post edited successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Failed to edit post: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -660,7 +660,7 @@ public class ManagePostsGUI extends JFrame {
         }
 
         try {
-            new deletePost().deletePost(PostIdToDelete, deleteTitle, deleteContent, deleteAll);
+            new deletePost().deletePost(PostIdToDelete, authorId,deleteTitle, deleteContent, deleteAll);
             JOptionPane.showMessageDialog(this, "Post deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Failed to delete post: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

@@ -12,8 +12,10 @@ public class viewPost extends JPanel {
     private static final String URL = "jdbc:mysql://localhost:3306/user_management";
     private static final String USER = "root";
     private static final String PASSWORD = "K@miVo_02825";
+    private final int authorId;
 
-    public viewPost() {
+    public viewPost(int authorId) {
+        this.authorId = authorId;
         setLayout(new BorderLayout());
         setBackground(Color.decode("#2C2C2C"));
 
@@ -35,17 +37,19 @@ public class viewPost extends JPanel {
 
     private List<Post> getPosts() {
         List<Post> posts = new ArrayList<>();
-        String query = "SELECT id, title, content, author_id, date FROM posts";
+        String query = "SELECT id, title, content, author_id, date FROM posts WHERE author_id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement(query);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String title = resultSet.getString("title");
-                String content = resultSet.getString("content");
-                int authorId = resultSet.getInt("author_id");
-                String date = resultSet.getString("date");
-                posts.add(new Post(id, title, content, authorId, date));
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, authorId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String title = resultSet.getString("title");
+                    String content = resultSet.getString("content");
+                    int authorId = resultSet.getInt("author_id");
+                    String date = resultSet.getString("date");
+                    posts.add(new Post(id, title, content, authorId, date));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

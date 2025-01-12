@@ -8,7 +8,7 @@ public class deletePost {
     private static final String USER = "root";
     private static final String PASSWORD = "K@miVo_02825";
 
-    public boolean deletePost(int id, boolean deleteTitle, boolean deleteContent, boolean deleteAll) {
+    public boolean deletePost(int id, int authorId, boolean deleteTitle, boolean deleteContent, boolean deleteAll) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         boolean success = false;
@@ -17,8 +17,13 @@ public class deletePost {
             connection = DriverManager.getConnection(URL, USER, PASSWORD);
             connection.setAutoCommit(false);
 
-            if(deleteAll) {
-                String deletePostQuery = "DELETE FROM post WHERE id = ?";
+            if (!isPostOwnedByUser(connection, id, authorId)) {
+                JOptionPane.showMessageDialog(null, "You do not have permission to delete this post.");
+                return false;
+            }
+
+            if (deleteAll) {
+                String deletePostQuery = "DELETE FROM posts WHERE id = ?";
                 preparedStatement = connection.prepareStatement(deletePostQuery);
                 preparedStatement.setInt(1, id);
                 preparedStatement.executeUpdate();
@@ -26,14 +31,14 @@ public class deletePost {
 
                 success = true;
             } else {
-                StringBuilder queryBuilder = new StringBuilder("UPDATE post SET ");
+                StringBuilder queryBuilder = new StringBuilder("UPDATE posts SET ");
                 boolean first = true;
-                if(deleteTitle) {
+                if (deleteTitle) {
                     queryBuilder.append("title = NULL");
                     first = false;
                 }
-                if(deleteContent) {
-                    if(!first) {
+                if (deleteContent) {
+                    if (!first) {
                         queryBuilder.append(", ");
                     }
                     queryBuilder.append("content = NULL");
@@ -82,8 +87,19 @@ public class deletePost {
         }
     }
 
+    private boolean isPostOwnedByUser(Connection connection, int postId, int authorId) throws SQLException {
+        String sql = "SELECT * FROM posts WHERE id = ? AND author_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, postId);
+            preparedStatement.setInt(2, authorId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
     public static boolean isPostExists(int postId) {
-        String sql = "SELECT * FROM post WHERE id = ?";
+        String sql = "SELECT * FROM posts WHERE id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, postId);
@@ -95,7 +111,7 @@ public class deletePost {
         }
     }
 
-    public static void main(String[] args){
-        SwingUtilities.invokeLater(() -> new GUI.ManagePostsGUI("admin"));
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new GUI.ManagePostsGUI("user"));
     }
 }
