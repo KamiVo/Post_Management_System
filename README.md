@@ -6,14 +6,14 @@ This project is a **User and Post Management System** built using Java and Swing
 
 ## Table of Contents
 
-1. [🎨 Features](#features)
-2. [📝 Installation](#installation)
-3. [🔧 Usage](#usage)
-4. [🔧 Requirements](#requirements)
-5. [📊 Database Setup](#database-setup)
-6. [🗂 Project Structure](#project-structure)
-7. [📊 Classes and Methods](#classes-and-methods)
-8. [⚖️ License](#license)
+1. [🎨 Features](#-features)
+2. [📝 Installation](#-installation)
+3. [🔧 Usage](#-usage)
+4. [🔧 Requirements](#-requirements)
+5. [📊 Database Setup](#-database-setup)
+6. [🗂 Project Structure](#-project-structure)
+7. [📊 Classes and Methods](#-classes-and-methods)
+8. [⚖️ License](#-license)
 
 ---
 
@@ -57,6 +57,7 @@ mvn clean install
 ---
 
 ## 🛠️ Requirements
+
 - ☕ Java 8 or higher
 - 🖥️ IntelliJ IDEA or any other Java IDE
 - 🗄️ MySQL Database
