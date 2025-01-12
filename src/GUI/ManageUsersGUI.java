@@ -1,6 +1,7 @@
 package GUI;
 
 import Function.addUser;
+import Function.deleteUser;
 import Function.editUser;
 import Function.viewUser;
 import Main.LoginRegisterGUI;
@@ -8,12 +9,11 @@ import Main.MainDashboardGUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.sql.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class ManageUsersGUI extends JFrame {
     private final CardLayout cardLayout;
@@ -21,11 +21,14 @@ public class ManageUsersGUI extends JFrame {
     private final JPanel editUserCardPanel;
     private final CardLayout editUserCardLayout;
     private int userIdToEdit;
-    private static final String URL = "jdbc:mysql://localhost:3306/user_management";
-    private static final String USER = "root";
-    private static final String PASSWORD = "K@miVo_02825";
+    private int userIdToDelete;
     private boolean editAllSelected;
+    private boolean deleteAllSelected;
     private List<JTextField> editTextFields;
+    private final JPanel deleteUserCardPanel;
+    private final CardLayout deleteUserCardLayout;
+
+    private viewUser viewUser;
 
     public ManageUsersGUI(String username) {
         setTitle("User Management System");
@@ -58,6 +61,13 @@ public class ManageUsersGUI extends JFrame {
         editUserCardPanel.add(createEditUserSelectionPanel(), "EditUserSelection");
         editUserCardPanel.add(createEditUserEditPanel(), "EditUserEdit");
 
+        deleteUserCardLayout = new CardLayout();
+        deleteUserCardPanel = new JPanel(deleteUserCardLayout);
+        deleteUserCardPanel.setOpaque(false);
+        deleteUserCardPanel.add(createDeleteUserIdPanel(), "DeleteUserId");
+        deleteUserCardPanel.add(createDeleteUserOptionsPanel(), "DeleteUserOptions");
+
+        mainRightPanel.add(deleteUserCardPanel, "Delete User");
         mainRightPanel.add(editUserCardPanel, "Edit User");
 
         layeredPane.add(mainRightPanel, JLayeredPane.DEFAULT_LAYER);
@@ -83,6 +93,164 @@ public class ManageUsersGUI extends JFrame {
         });
     }
 
+    private JPanel createDeleteUserIdPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        JLabel idLabel = new JLabel("Enter User ID to Delete:");
+        idLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        idLabel.setForeground(Color.WHITE);
+
+        JTextField idField = new JTextField(20);
+        idField.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    handleDeleteUser(idField.getText());
+                    idField.setText("");
+                }
+            }
+        });
+
+        JButton fetchUserButton = createButton("Next");
+        fetchUserButton.addActionListener(_ -> {
+            handleDeleteUser(idField.getText());
+            idField.setText("");
+        });
+        fetchUserButton.setFocusPainted(false);
+
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(idLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(idField, gbc);
+
+        gbc.gridy = 1;
+        gbc.gridx = 1;
+        panel.add(fetchUserButton, gbc);
+
+        return panel;
+    }
+
+    private void handleDeleteUser(String idText) {
+        if(idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter User ID", "Input Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idText);
+
+            if(!deleteUser.isUserExist(id)) {
+                JOptionPane.showMessageDialog(this, "User ID not identified, Please enter again", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if(deleteUser.isUserAdmin(id)) {
+                JOptionPane.showMessageDialog(this, "Admin user cannot be deleted", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            userIdToDelete = id;
+            deleteUserCardLayout.show(deleteUserCardPanel, "DeleteUserOptions");
+        } catch(NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid ID format", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private JPanel createDeleteUserOptionsPanel(){
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.EAST;
+        JLabel deleteLabel = new JLabel("Select what to delete:");
+        deleteLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        deleteLabel.setForeground(Color.WHITE);
+        panel.add(deleteLabel, gbc);
+
+        JCheckBox deleteAgeCheckBox = new JCheckBox("Age");
+        deleteAgeCheckBox.setFont(new Font("Arial", Font.BOLD, 18));
+
+        JCheckBox deleteHometownCheckBox = new JCheckBox("Hometown");
+        deleteHometownCheckBox.setFont(new Font("Arial", Font.BOLD, 18));
+
+        JCheckBox deleteAllCheckBox = new JCheckBox("All");
+        deleteAllCheckBox.setFont(new Font("Arial", Font.BOLD, 18));
+
+        deleteAgeCheckBox.setOpaque(false);
+        deleteAgeCheckBox.setForeground(Color.WHITE);
+        deleteHometownCheckBox.setOpaque(false);
+        deleteHometownCheckBox.setForeground(Color.WHITE);
+        deleteAllCheckBox.setOpaque(false);
+        deleteAllCheckBox.setForeground(Color.WHITE);
+
+        deleteAllCheckBox.addActionListener(e -> {
+            boolean selected = deleteAllCheckBox.isSelected();
+            deleteAgeCheckBox.setSelected(selected);
+            deleteHometownCheckBox.setSelected(selected);
+            deleteAgeCheckBox.setEnabled(!selected);
+            deleteHometownCheckBox.setEnabled(!selected);
+            deleteAllSelected = selected;
+        });
+        deleteAllSelected = deleteAllCheckBox.isSelected();
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(deleteAgeCheckBox, gbc);
+        gbc.gridy++;
+        panel.add(deleteHometownCheckBox, gbc);
+        gbc.gridy++;
+        panel.add(deleteAllCheckBox, gbc);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setOpaque(false);
+
+        JButton deleteButton = createButton("Delete");
+        deleteButton.addActionListener(_ -> handleDeleteSelection(deleteAgeCheckBox.isSelected(),
+                deleteHometownCheckBox.isSelected(),
+                deleteAllCheckBox.isSelected()
+        ));
+        buttonPanel.add(deleteButton);
+
+        JButton backButton = createButton("Back");
+        backButton.addActionListener(_ -> deleteUserCardLayout.show(deleteUserCardPanel, "DeleteUserId"));
+        buttonPanel.add(backButton);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(buttonPanel, gbc);
+
+        return panel;
+    }
+
+    private void handleDeleteSelection(boolean deleteAge, boolean deleteHometown, boolean deleteAll) {
+        if(!deleteAge && !deleteHometown && !deleteAll){
+            JOptionPane.showMessageDialog(this, "Please select at least one option", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        boolean success = new deleteUser().deleteUser(userIdToDelete, deleteAge, deleteHometown, deleteAll);
+
+        if(success) {
+            JOptionPane.showMessageDialog(this, "User deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            deleteUserCardLayout.show(deleteUserCardPanel, "DeleteUserId");
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to delete user", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private JPanel createViewPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
@@ -94,7 +262,8 @@ public class ManageUsersGUI extends JFrame {
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
-        panel.add(new viewUser(), gbc);
+        viewUser = new viewUser();
+        panel.add(viewUser, gbc);
 
         return panel;
     }
@@ -176,7 +345,6 @@ public class ManageUsersGUI extends JFrame {
         return panel;
     }
 
-
     private JPanel createEditUserIdPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
@@ -231,12 +399,12 @@ public class ManageUsersGUI extends JFrame {
         try {
             int id = Integer.parseInt(idText);
 
-            if (!isUserExist(id)) {
+            if (!editUser.isUserExist(id)) {
                 JOptionPane.showMessageDialog(this, "User ID not identified, Please enter again", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            if (isUserAdmin(id)) {
+            if (editUser.isUserAdmin(id)) {
                 JOptionPane.showMessageDialog(this, "Admin user cannot be edited", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -246,40 +414,6 @@ public class ManageUsersGUI extends JFrame {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid ID format", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    private boolean isUserAdmin(int userId) {
-        String sql = "SELECT role_id FROM user WHERE id = ?";
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, userId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    int roleId = resultSet.getInt("role_id");
-                    return roleId == 1;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    private boolean isUserExist(int userId) {
-        String sql = "SELECT COUNT(*) FROM user WHERE id = ?";
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, userId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    int count = resultSet.getInt(1);
-                    return count > 0;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     private JPanel createEditUserSelectionPanel() {
@@ -346,8 +480,7 @@ public class ManageUsersGUI extends JFrame {
         nextButton.addActionListener(_ -> handleEditSelection(editNameCheckBox.isSelected(),
                 editHometownCheckBox.isSelected(),
                 editAgeCheckBox.isSelected(),
-                editAllCheckBox.isSelected(),
-                panel
+                editAllCheckBox.isSelected()
         ));
         buttonPanel.add(nextButton);
 
@@ -364,7 +497,7 @@ public class ManageUsersGUI extends JFrame {
         return panel;
     }
 
-    private void handleEditSelection(boolean editName, boolean editHometown, boolean editAge, boolean editAll, JPanel selectionPanel) {
+    private void handleEditSelection(boolean editName, boolean editHometown, boolean editAge, boolean editAll) {
         if(!editName && !editHometown && !editAge && !editAll){
             JOptionPane.showMessageDialog(this, "Please select at least one option", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -431,12 +564,23 @@ public class ManageUsersGUI extends JFrame {
         buttonPanel.setOpaque(false);
 
         JButton submitButton = createButton("Submit");
-        submitButton.addActionListener(_ -> handleEditUser(userIdToEdit,
-                editName || editAll ? editTextFields.size() > 0 ? editTextFields.get(0).getText() : null : null,
-                editHometown || editAll ? editTextFields.size() > 1 ? editTextFields.get(1).getText() : null : null,
-                editAge || editAll ? editTextFields.size() > 2 ? editTextFields.get(2).getText() : null : null,
-                editAll
-        ));
+        submitButton.addActionListener(_ -> {
+            String newName = null;
+            String newHometown = null;
+            String newAge = null;
+
+            int index = 0;
+            if (editName || editAll) {
+                newName = editTextFields.size() > index ? editTextFields.get(index++).getText() : null;
+            }
+            if (editHometown || editAll) {
+                newHometown = editTextFields.size() > index ? editTextFields.get(index++).getText() : null;
+            }
+            if (editAge || editAll) {
+                newAge = editTextFields.size() > index ? editTextFields.get(index++).getText() : null;
+            }
+            handleEditUser(userIdToEdit, newName, newHometown, newAge, editAll, editHometown, editAge);
+        });
         buttonPanel.add(submitButton);
 
         JButton backButton = createButton("Back");
@@ -459,17 +603,22 @@ public class ManageUsersGUI extends JFrame {
         return panel;
     }
 
-
-    private void handleEditUser(int id, String newName, String newHometown, String newAge, boolean editAll) {
-        if ((newName == null || newName.trim().isEmpty()) &&
-                (newHometown == null || newHometown.trim().isEmpty()) &&
-                (newAge == null || newAge.trim().isEmpty())) {
+    private void handleEditUser(int id, String newName, String newHometown, String newAge, boolean editAll, boolean editHometownSelected, boolean editAgeSelected) {
+        if (
+                (!editAll && newName == null && newHometown == null && newAge == null) || //if user didn't choose anything
+                        (newName != null && newName.trim().isEmpty()) || //if user chose name but input blank
+                        (editHometownSelected && (newHometown == null || newHometown.trim().isEmpty())) || //if user chose hometown but input blank
+                        (editAgeSelected && (newAge == null || newAge.trim().isEmpty())) //if user chose age but input blank
+        ){
             JOptionPane.showMessageDialog(this, "Fields cannot be blank", "Input Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         try {
-            Integer age = newAge == null ? null : Integer.parseInt(newAge);
+            Integer age = null;
+            if (editAgeSelected && newAge != null && !newAge.trim().isEmpty()){
+                age = Integer.parseInt(newAge);
+            }
             boolean success = new editUser().editUser(id, newName, newHometown, age, editAll);
 
             if (success) {
@@ -523,10 +672,17 @@ public class ManageUsersGUI extends JFrame {
         panel.add(createNavigationButton("Edit User", "Edit User"), gbc);
         styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
 
-        panel.add(createNavigationButton("View Users", "View Users"), gbc);
+        JButton viewUserButton  = createNavigationButton("View Users", "View Users");
+        viewUserButton.addActionListener(e-> {
+            mainRightPanel.remove(viewUser);
+            mainRightPanel.add(createViewPanel(), "View Users");
+            cardLayout.show(mainRightPanel, "View Users");
+        });
+        panel.add(viewUserButton, gbc);
+
         styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
 
-        panel.add(createNavigationButton("Delete User", null), gbc);
+        panel.add(createNavigationButton("Delete User", "Delete User"), gbc);
         styleButton((JButton) panel.getComponent(panel.getComponentCount() - 1), (new Color(0xF38464)), Color.WHITE);
 
         JButton exitButton = createButton("Exit");

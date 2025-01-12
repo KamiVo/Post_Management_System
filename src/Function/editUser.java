@@ -28,33 +28,26 @@ public class editUser {
                 }
                 success = true;
             }
+            // Handle all combinations of user_details updates
+            if (newHometown != null && newAge != null) {
+                String sqlDetails = "UPDATE user_details SET hometown = ?, age = ? WHERE id = ?";
+                preparedStatement = connection.prepareStatement(sqlDetails);
+                preparedStatement.setString(1, newHometown);
+                preparedStatement.setInt(2, newAge);
+                preparedStatement.setInt(3, id);
+            } else if (newHometown != null) {
+                String sqlDetails = "UPDATE user_details SET hometown = ? WHERE id = ?";
+                preparedStatement = connection.prepareStatement(sqlDetails);
+                preparedStatement.setString(1, newHometown);
+                preparedStatement.setInt(2, id);
+            } else if (newAge != null) {
+                String sqlDetails = "UPDATE user_details SET age = ? WHERE id = ?";
+                preparedStatement = connection.prepareStatement(sqlDetails);
+                preparedStatement.setInt(1, newAge);
+                preparedStatement.setInt(2, id);
+            }
 
             if (newHometown != null || newAge != null) {
-                StringBuilder sqlDetailsBuilder = new StringBuilder("UPDATE user_details SET ");
-                boolean firstUpdate = true;
-                if (newHometown != null) {
-                    sqlDetailsBuilder.append("hometown = ?");
-                    firstUpdate = false;
-                }
-                if (newAge != null) {
-                    if (!firstUpdate) {
-                        sqlDetailsBuilder.append(", ");
-                    }
-                    sqlDetailsBuilder.append("age = ?");
-                }
-
-                sqlDetailsBuilder.append(" WHERE id = ?");
-                String sqlDetails = sqlDetailsBuilder.toString();
-
-                preparedStatement = connection.prepareStatement(sqlDetails);
-                int paramIndex = 1;
-                if (newHometown != null) {
-                    preparedStatement.setString(paramIndex++, newHometown);
-                }
-                if (newAge != null) {
-                    preparedStatement.setInt(paramIndex++, newAge);
-                }
-                preparedStatement.setInt(paramIndex, id);
                 int rowsAffected = preparedStatement.executeUpdate();
                 if (rowsAffected > 0) {
                     success = true;
@@ -63,6 +56,7 @@ public class editUser {
                     return false;
                 }
             }
+
             if (success) {
                 connection.commit();
             }
@@ -95,6 +89,41 @@ public class editUser {
                 }
             }
         }
+    }
+
+
+    public static boolean isUserAdmin(int userId) {
+        String sql = "SELECT role_id FROM user WHERE id = ?";
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int roleId = resultSet.getInt("role_id");
+                    return roleId == 1;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean isUserExist(int userId) {
+        String sql = "SELECT COUNT(*) FROM user WHERE id = ?";
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int count = resultSet.getInt(1);
+                    return count > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static void main(String[] args) {
