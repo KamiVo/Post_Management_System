@@ -100,7 +100,7 @@ mvn clean install
 
 3. Update the database connection details in the `Main.LoginRegisterGUI` class:
     ```java
-    connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/user_management", "root", "K@miVo_02825");
+    connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/user_management", "(your username)", "(your password)");
     ```
 ---
 ## 🛠️ Requirements
