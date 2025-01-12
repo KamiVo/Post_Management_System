@@ -9,8 +9,8 @@ This project is a **User and Post Management System** built using Java and Swing
 1. [🎨 Features](#features)
 2. [📝 Installation](#installation)
 3. [🔧 Usage](#usage)
-4. [📊 Database Setup](#database-setup)
-5. [🔧 Requirements](#requirements)
+4. [🔧 Requirements](#requirements)
+5. [📊 Database Setup](#database-setup)
 6. [🗂 Project Structure](#project-structure)
 7. [📊 Classes and Methods](#classes-and-methods)
 8. [⚖️ License](#license)
@@ -53,6 +53,13 @@ mvn clean install
 1. Run the `Main.LoginRegisterGUI` class to launch the application.
 2. Register a new user or log in with an existing user account.
 3. Use the dashboard to navigate between user and post management functionalities.
+
+---
+
+## 🛠️ Requirements
+- ☕ Java 8 or higher
+- 🖥️ IntelliJ IDEA or any other Java IDE
+- 🗄️ MySQL Database
 
 ---
 
@@ -102,11 +109,7 @@ mvn clean install
     ```java
     connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/user_management", "(your username)", "(your password)");
     ```
----
-## 🛠️ Requirements
-- ☕ Java 8 or higher
-- 🖥️ IntelliJ IDEA or any other Java IDE
-- 🗄️ MySQL Database
+    
 ---
 
 ## 🗂 Project Structure
