@@ -203,4 +203,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-![User Management GIF](https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif)
+<img src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" autoplay loop>
