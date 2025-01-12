@@ -9,7 +9,7 @@ This project is a **User and Post Management System** built using Java and Swing
 1. [🎨 Features](#-features)
 2. [📝 Installation](#-installation)
 3. [🔧 Usage](#-usage)
-4. [🔧 Requirements](#-requirements)
+4. [🛠️ Requirements](#-requirements)
 5. [📊 Database Setup](#-database-setup)
 6. [🗂 Project Structure](#-project-structure)
 7. [📊 Classes and Methods](#-classes-and-methods)
