@@ -16,6 +16,7 @@ CREATE TABLE user (
     email VARCHAR(255),
     password VARCHAR(255) NOT NULL,
     role_id INT,
+    avatar LONGBLOB,
     FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
@@ -95,7 +96,7 @@ INSERT INTO user_details (id, age, hometown) VALUES
     ((SELECT id FROM user WHERE username = 'tina1717'), 39, 'Shelbyville');
 
 -- Insert additional posts
-INSERT INTO post (title, content, author_id, date) VALUES
+INSERT INTO posts (title, content, author_id, date) VALUES
     ('Post 1 by Author 1', 'Content of post 1 by author 1.', 1, '2023-01-01 10:00:00'),
     ('Post 2 by Author 1', 'Content of post 2 by author 1.', 1, '2023-01-02 11:00:00'),
     ('Post 1 by Author 2', 'Content of post 1 by author 2.', 2, '2023-01-03 12:00:00'),

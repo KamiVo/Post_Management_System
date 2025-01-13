@@ -4,15 +4,21 @@ import Function.*;
 import Main.LoginRegisterGUI;
 import Main.MainDashboardGUI;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class ManagePostsGUI extends JFrame {
     private CardLayout cardLayout;
@@ -25,6 +31,7 @@ public class ManagePostsGUI extends JFrame {
     private boolean deleteAllSelected;
     private viewPost viewPost;
     private final int authorId;
+    private String avatarPath;
     private int PostIdToEdit;
     private int PostIdToDelete;
     private List<JTextField> editTextFields;
@@ -42,6 +49,7 @@ public class ManagePostsGUI extends JFrame {
 
         // Assuming authorId is retrieved based on the username
         this.authorId = getAuthorIdByUsername(username);
+        this.avatarPath = modifyAcc.getAvatarPathId(authorId);
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setBounds(0, 0, getWidth(), getHeight());
@@ -110,7 +118,8 @@ public class ManagePostsGUI extends JFrame {
         gbc.gridy = GridBagConstraints.RELATIVE;
         gbc.insets = new Insets(20, 0, 20, 0);
 
-        JLabel logo = createScaledLogo();
+        String avatarPath = modifyAcc.getAvatarPathId(authorId);
+        JLabel logo = createScaledLogo(avatarPath);
         JLabel userLabel = new JLabel(username);
         userLabel.setFont(new Font("Arial", Font.BOLD, 20));
         userLabel.setForeground(Color.WHITE);
@@ -139,7 +148,7 @@ public class ManagePostsGUI extends JFrame {
         JButton exitButton = createButton("Exit");
         styleButton(exitButton, (new Color(0xF38464)), Color.WHITE);
         exitButton.addActionListener(_ -> {
-            new MainDashboardGUI("admin").setVisible(true);
+            new MainDashboardGUI(username).setVisible(true);
             dispose();
         });
         panel.add(exitButton, gbc);
@@ -684,8 +693,8 @@ public class ManagePostsGUI extends JFrame {
         return button;
     }
 
-    private JLabel createScaledLogo() {
-        ImageIcon originalIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/user.png")));
+    private JLabel createScaledLogo(String avatarPath) {
+        ImageIcon originalIcon = new ImageIcon(avatarPath);
         Image scaledImage = originalIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
         JLabel label = new JLabel(new ImageIcon(scaledImage));
         label.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -696,105 +705,6 @@ public class ManagePostsGUI extends JFrame {
             }
         });
         return label;
-    }
-
-    private JPanel createManageAccountPanel(String username) {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setOpaque(false);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-
-        JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        usernameLabel.setForeground(Color.WHITE);
-
-        JTextField usernameField = new JTextField(20);
-        usernameField.setText(username);
-
-        JLabel oldPassLabel = new JLabel("Old Password:");
-        oldPassLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        oldPassLabel.setForeground(Color.WHITE);
-
-        JPasswordField oldPassField = new JPasswordField(20);
-
-        JLabel newPassLabel = new JLabel("New Password:");
-        newPassLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        newPassLabel.setForeground(Color.WHITE);
-
-        JPasswordField newPassField = new JPasswordField(20);
-
-        JButton updateButton = createButton("Update");
-        styleButton(updateButton, new Color(0xFF0404), Color.WHITE);
-        updateButton.addActionListener(e -> {
-            handleUpdateAccount(username, usernameField.getText(), new String(oldPassField.getPassword()), new String(newPassField.getPassword()));
-            usernameField.setText("");
-            oldPassField.setText("");
-            newPassField.setText("");
-        });
-
-        newPassField.addKeyListener(new java.awt.event.KeyAdapter() {
-            @Override
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                    updateButton.doClick();
-                    usernameField.setText("");
-                    oldPassField.setText("");
-                    newPassField.setText("");
-                }
-            }
-        });
-
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.EAST;
-        panel.add(usernameLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(usernameField, gbc);
-
-        gbc.gridy = 1;
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.EAST;
-        panel.add(oldPassLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(oldPassField, gbc);
-
-        gbc.gridy = 2;
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.EAST;
-        panel.add(newPassLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(newPassField, gbc);
-
-        gbc.gridy = 3;
-        gbc.gridx = 1;
-        panel.add(updateButton, gbc);
-
-        return panel;
-    }
-
-    private void handleUpdateAccount(String currentUsername, String newUsername, String oldPassword, String newPassword) {
-        if (oldPassword.isEmpty() && !newPassword.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in the old password field", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (!oldPassword.isEmpty() && newPassword.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in the new password field", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-            new modifyAcc(currentUsername, oldPassword, newPassword, newUsername);
-            JOptionPane.showMessageDialog(this, "Account updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Failed to update account: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
     }
 
     private JButton createButton(String text) {
@@ -866,6 +776,194 @@ public class ManagePostsGUI extends JFrame {
             e.printStackTrace();
         }
         return -1; // Return -1 if the user is not found or an error occurs
+    }
+
+    private JPanel createManageAccountPanel(String username) {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        JLabel avatarLabel = new JLabel();
+        updateAvatarLabel(avatarLabel, avatarPath);
+        avatarLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        avatarLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int result = fileChooser.showOpenDialog(null);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    String avatarPath = selectedFile.getAbsolutePath();
+                    // Generate a unique filename
+                    String uniqueFilename = authorId + "_" + UUID.randomUUID().toString() + modifyAcc.getFileExtension(selectedFile.getName());
+                    String destinationPath = "src/Resources/avatars/" + uniqueFilename;
+
+                    // Delete previous avatar
+                    String prevAvatarPath =  modifyAcc.getAvatarPathId(authorId);
+                    if (prevAvatarPath != null && !prevAvatarPath.equals("src/Resources/user.png") && !prevAvatarPath.isEmpty()) {
+                        File prevAvatarFile = new File(prevAvatarPath);
+                        if(prevAvatarFile.exists()) {
+                            prevAvatarFile.delete();
+                        }
+                    }
+                    // Resize and copy file to server directory
+                    try {
+                        BufferedImage originalImage = ImageIO.read(selectedFile);
+                        int targetWidth = 200;
+                        int targetHeight = 200;
+                        BufferedImage resizedImage = resizeImage(originalImage, targetWidth, targetHeight);
+                        File output = new File(destinationPath);
+                        ImageIO.write(resizedImage,modifyAcc.getFileExtension(destinationPath).replace(".",""), output);
+                        updateAvatarLabel(avatarLabel, destinationPath);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        avatarPath = modifyAcc.getAvatarPathId(authorId);
+                        updateAvatarLabel(avatarLabel, avatarPath);
+                    }
+                    // store the relative path to the database
+                }
+            }
+        });
+
+        JLabel usernameLabel = new JLabel("Username:");
+        usernameLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        usernameLabel.setForeground(Color.WHITE);
+
+        JTextField usernameField = new JTextField(20);
+        usernameField.setText(username);
+
+        JLabel oldPassLabel = new JLabel("Old Password:");
+        oldPassLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        oldPassLabel.setForeground(Color.WHITE);
+
+        JPasswordField oldPassField = new JPasswordField(20);
+
+        JLabel newPassLabel = new JLabel("New Password:");
+        newPassLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        newPassLabel.setForeground(Color.WHITE);
+
+        JPasswordField newPassField = new JPasswordField(20);
+
+        JButton updateButton = createButton("Update");
+        styleButton(updateButton, new Color(0xFF0404), Color.WHITE);
+        updateButton.addActionListener(e -> {
+            boolean updateSuccess;
+            try {
+                updateSuccess = handleUpdateAccount(username, usernameField.getText(), new String(oldPassField.getPassword()), new String(newPassField.getPassword()), avatarPath);
+                if(updateSuccess) {
+                    usernameField.setText("");
+                    oldPassField.setText("");
+                    newPassField.setText("");
+                } else {
+                    oldPassField.setText("");
+                    newPassField.setText("");
+                }
+            } catch (Exception ex) {
+                oldPassField.setText("");
+                newPassField.setText("");
+            }
+        });
+
+        newPassField.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    updateButton.doClick();
+                    boolean updateSuccess;
+                    try {
+                        updateSuccess = handleUpdateAccount(username, usernameField.getText(), new String(oldPassField.getPassword()), new String(newPassField.getPassword()), avatarPath);
+                        if(updateSuccess) {
+                            usernameField.setText("");
+                            oldPassField.setText("");
+                            newPassField.setText("");
+                        } else {
+                            oldPassField.setText("");
+                            newPassField.setText("");
+                        }
+                    } catch (Exception ex) {
+                        oldPassField.setText("");
+                        newPassField.setText("");
+                    }
+                }
+            }
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(avatarLabel, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(usernameLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(usernameField, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(oldPassLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(oldPassField, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(newPassLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(newPassField, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 1;
+        panel.add(updateButton, gbc);
+
+        return panel;
+    }
+    private static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+        BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics2D = resizedImage.createGraphics();
+        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        graphics2D.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+        graphics2D.dispose();
+        return resizedImage;
+    }
+
+    //update avatar label
+    private void updateAvatarLabel(JLabel avatarLabel, String avatarPath) {
+        ImageIcon avatarIcon = new ImageIcon(avatarPath);
+        Image avatarImage = avatarIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+        avatarLabel.setIcon(new ImageIcon(avatarImage));
+    }
+
+    private boolean handleUpdateAccount(String currentUsername, String newUsername, String oldPassword, String newPassword, String avatarPath) {
+        if(newUsername.isEmpty() && oldPassword.isEmpty() && newPassword.isEmpty() && avatarPath.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in at least one field", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        try {
+            boolean success = new modifyAcc().modifyAcc(authorId, currentUsername, newUsername, oldPassword, newPassword, avatarPath);
+            if(success) {
+                JOptionPane.showMessageDialog(this, "Account updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to update account", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Failed to update account: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
     }
 
     public static void main(String[] args) {
