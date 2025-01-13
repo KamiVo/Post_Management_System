@@ -1,11 +1,5 @@
 USE user_management;
 
--- Drop all tables if they exist
-DROP TABLE IF EXISTS posts;
-DROP TABLE IF EXISTS user_details;
-DROP TABLE IF EXISTS user;
-DROP TABLE IF EXISTS roles;
-
 -- Create the roles table
 CREATE TABLE roles (
     id INT AUTO_INCREMENT PRIMARY KEY,
