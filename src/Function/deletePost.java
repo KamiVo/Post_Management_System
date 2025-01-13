@@ -88,14 +88,19 @@ public class deletePost {
     }
 
     private boolean isPostOwnedByUser(Connection connection, int postId, int authorId) throws SQLException {
-        String sql = "SELECT * FROM posts WHERE id = ? AND author_id = ?";
+        String sql = "SELECT * FROM posts WHERE id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, postId);
-            preparedStatement.setInt(2, authorId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return resultSet.next();
+                if (resultSet.next()) {
+                    int postAuthorId = resultSet.getInt("author_id");
+                    if (authorId == -1 || authorId == postAuthorId) {
+                        return true;
+                    }
+                }
             }
         }
+        return false;
     }
 
     public static boolean isPostExists(int postId) {

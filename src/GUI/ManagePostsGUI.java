@@ -612,6 +612,8 @@ public class ManagePostsGUI extends JFrame {
            boolean selected = deleteAllCheckBox.isSelected();
            deleteTitleCheckBox.setSelected(selected);
            deleteContentCheckBox.setSelected(selected);
+           deleteTitleCheckBox.setSelected(!selected);
+           deleteContentCheckBox.setSelected(!selected);
            deleteAllSelected = selected;
        });
        deleteAllSelected = deleteAllCheckBox.isSelected();
@@ -654,14 +656,18 @@ public class ManagePostsGUI extends JFrame {
     }
 
     private void handleDeleteOption(boolean deleteTitle, boolean deleteContent, boolean deleteAll) {
-        if(!deleteTitle && !deleteContent && !deleteAll) {
+        if (!deleteTitle && !deleteContent && !deleteAll) {
             JOptionPane.showMessageDialog(this, "Please select at least one option", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            new deletePost().deletePost(PostIdToDelete, authorId,deleteTitle, deleteContent, deleteAll);
-            JOptionPane.showMessageDialog(this, "Post deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            boolean success = new deletePost().deletePost(PostIdToDelete, authorId, deleteTitle, deleteContent, deleteAll);
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Post deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to delete post.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Failed to delete post: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

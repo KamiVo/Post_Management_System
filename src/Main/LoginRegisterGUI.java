@@ -3,7 +3,6 @@ package Main;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
-import java.util.function.Supplier;
 
 public class LoginRegisterGUI extends JFrame {
     public static Connection connection;
