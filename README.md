@@ -118,7 +118,9 @@ mvn clean install
 ### `src/Function/`
 - **`addPost.java`**: Handles adding new posts.
 - **`addUser.java`**: Handles adding new users.
+- **`deletePost.java`**: Handles deleting posts.
 - **`deleteUser.java`**: Handles deleting users.
+- **`editPost.java`**: Handles editing post details.
 - **`editUser.java`**: Handles editing user details.
 - **`viewPost.java`**: Handles viewing posts.
 - **`viewUser.java`**: Handles viewing users.
