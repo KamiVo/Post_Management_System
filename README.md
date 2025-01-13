@@ -1,4 +1,4 @@
-# ✨ User and Post Management System ✨
+# ✨ Post Management System ✨
 
 This project is a **User and Post Management System** built using Java and Swing for the GUI, with MySQL as the database. It allows administrators to manage users and posts, including adding, editing, viewing, and deleting users and posts.
 
