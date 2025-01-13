@@ -15,7 +15,7 @@ public class addUser {
                 return;
             }
             int newUserId = addUserToUserTable(connection, username);
-            addUserToUserDetailsTable(connection,newUserId, hometown, age);
+            addUserToUserDetailsTable(connection, newUserId, hometown, age);
             JOptionPane.showMessageDialog(null, "User added successfully!");
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Failed to add user: " + e.getMessage());
@@ -33,15 +33,13 @@ public class addUser {
         }
     }
 
-
     private int addUserToUserTable(Connection connection, String username) throws SQLException {
-        String insertQuery = "INSERT INTO user (username, password, role_id) VALUES (?, ?, (SELECT id FROM roles WHERE name = 'user'))";
+        String insertQuery = "INSERT INTO user (username, password, role_id) VALUES (?, '1', (SELECT id FROM roles WHERE name = 'user'))";
         try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
             insertStmt.setString(1, username);
-            insertStmt.setString(2, "1"); //Default password
             insertStmt.executeUpdate();
-            try(ResultSet generatedKeys = insertStmt.getGeneratedKeys()){
-                if(generatedKeys.next()){
+            try (ResultSet generatedKeys = insertStmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
                     return generatedKeys.getInt(1);
                 } else {
                     throw new SQLException("Failed to retrieve new user id.");

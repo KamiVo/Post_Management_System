@@ -91,7 +91,6 @@ public class editUser {
         }
     }
 
-
     public static boolean isUserAdmin(int userId) {
         String sql = "SELECT role_id FROM user WHERE id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);

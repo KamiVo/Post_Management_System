@@ -54,11 +54,6 @@ CREATE TABLE posts (
     FOREIGN KEY (author_id) REFERENCES user(id)
 );
 
--- Insert posts
-INSERT INTO posts (title, content, author_id) VALUES
-    ('First Post', 'This is the content of the first post.', (SELECT id FROM user WHERE username = 'kamivo')),
-    ('Second Post', 'This is the content of the second post.', (SELECT id FROM user WHERE username = 'johnvo'));
-
 -- Insert additional user credentials
 INSERT INTO user (username, email, password, role_id) VALUES
     ('alice123', 'alice123@example.com', '1', (SELECT id FROM roles WHERE name = 'user')),
@@ -104,3 +99,52 @@ INSERT INTO user_details (id, age, hometown) VALUES
     ((SELECT id FROM user WHERE username = 'rose1515'), 33, 'Cypress Creek'),
     ((SELECT id FROM user WHERE username = 'sam1616'), 37, 'Springfield'),
     ((SELECT id FROM user WHERE username = 'tina1717'), 39, 'Shelbyville');
+
+-- Insert additional posts
+INSERT INTO post (title, content, author_id, date) VALUES
+    ('Post 1 by Author 1', 'Content of post 1 by author 1.', 1, '2023-01-01 10:00:00'),
+    ('Post 2 by Author 1', 'Content of post 2 by author 1.', 1, '2023-01-02 11:00:00'),
+    ('Post 1 by Author 2', 'Content of post 1 by author 2.', 2, '2023-01-03 12:00:00'),
+    ('Post 2 by Author 2', 'Content of post 2 by author 2.', 2, '2023-01-04 13:00:00'),
+    ('Post 1 by Author 3', 'Content of post 1 by author 3.', 3, '2023-01-05 14:00:00'),
+    ('Post 2 by Author 3', 'Content of post 2 by author 3.', 3, '2023-01-06 15:00:00'),
+    ('Post 1 by Author 4', 'Content of post 1 by author 4.', 4, '2023-01-07 16:00:00'),
+    ('Post 2 by Author 4', 'Content of post 2 by author 4.', 4, '2023-01-08 17:00:00'),
+    ('Post 1 by Author 5', 'Content of post 1 by author 5.', 5, '2023-01-09 18:00:00'),
+    ('Post 2 by Author 5', 'Content of post 2 by author 5.', 5, '2023-01-10 19:00:00'),
+    ('Post 1 by Author 6', 'Content of post 1 by author 6.', 6, '2023-01-11 20:00:00'),
+    ('Post 2 by Author 6', 'Content of post 2 by author 6.', 6, '2023-01-12 21:00:00'),
+    ('Post 1 by Author 7', 'Content of post 1 by author 7.', 7, '2023-01-13 22:00:00'),
+    ('Post 2 by Author 7', 'Content of post 2 by author 7.', 7, '2023-01-14 23:00:00'),
+    ('Post 1 by Author 8', 'Content of post 1 by author 8.', 8, '2023-01-15 00:00:00'),
+    ('Post 2 by Author 8', 'Content of post 2 by author 8.', 8, '2023-01-16 01:00:00'),
+    ('Post 1 by Author 9', 'Content of post 1 by author 9.', 9, '2023-01-17 02:00:00'),
+    ('Post 2 by Author 9', 'Content of post 2 by author 9.', 9, '2023-01-18 03:00:00'),
+    ('Post 1 by Author 10', 'Content of post 1 by author 10.', 10, '2023-01-19 04:00:00'),
+    ('Post 2 by Author 10', 'Content of post 2 by author 10.', 10, '2023-01-20 05:00:00'),
+    ('Post 1 by Author 11', 'Content of post 1 by author 11.', 11, '2023-01-21 06:00:00'),
+    ('Post 2 by Author 11', 'Content of post 2 by author 11.', 11, '2023-01-22 07:00:00'),
+    ('Post 1 by Author 12', 'Content of post 1 by author 12.', 12, '2023-01-23 08:00:00'),
+    ('Post 2 by Author 12', 'Content of post 2 by author 12.', 12, '2023-01-24 09:00:00'),
+    ('Post 1 by Author 13', 'Content of post 1 by author 13.', 13, '2023-01-25 10:00:00'),
+    ('Post 2 by Author 13', 'Content of post 2 by author 13.', 13, '2023-01-26 11:00:00'),
+    ('Post 1 by Author 14', 'Content of post 1 by author 14.', 14, '2023-01-27 12:00:00'),
+    ('Post 2 by Author 14', 'Content of post 2 by author 14.', 14, '2023-01-28 13:00:00'),
+    ('Post 1 by Author 15', 'Content of post 1 by author 15.', 15, '2023-01-29 14:00:00'),
+    ('Post 2 by Author 15', 'Content of post 2 by author 15.', 15, '2023-01-30 15:00:00'),
+    ('Post 1 by Author 16', 'Content of post 1 by author 16.', 16, '2023-01-31 16:00:00'),
+    ('Post 2 by Author 16', 'Content of post 2 by author 16.', 16, '2023-02-01 17:00:00'),
+    ('Post 1 by Author 17', 'Content of post 1 by author 17.', 17, '2023-02-02 18:00:00'),
+    ('Post 2 by Author 17', 'Content of post 2 by author 17.', 17, '2023-02-03 19:00:00'),
+    ('Post 1 by Author 18', 'Content of post 1 by author 18.', 18, '2023-02-04 20:00:00'),
+    ('Post 2 by Author 18', 'Content of post 2 by author 18.', 18, '2023-02-05 21:00:00'),
+    ('Post 1 by Author 19', 'Content of post 1 by author 19.', 19, '2023-02-06 22:00:00'),
+    ('Post 2 by Author 19', 'Content of post 2 by author 19.', 19, '2023-02-07 23:00:00'),
+    ('Post 1 by Author 20', 'Content of post 1 by author 20.', 20, '2023-02-08 00:00:00'),
+    ('Post 2 by Author 20', 'Content of post 2 by author 20.', 20, '2023-02-09 01:00:00'),
+    ('Post 1 by Author 21', 'Content of post 1 by author 21.', 21, '2023-02-10 02:00:00'),
+    ('Post 2 by Author 21', 'Content of post 2 by author 21.', 21, '2023-02-11 03:00:00'),
+    ('Post 1 by Author 22', 'Content of post 1 by author 22.', 22, '2023-02-12 04:00:00'),
+    ('Post 2 by Author 22', 'Content of post 2 by author 22.', 22, '2023-02-13 05:00:00'),
+    ('Post 1 by Author 23', 'Content of post 1 by author 23.', 23, '2023-02-14 06:00:00'),
+    ('Post 2 by Author 23', 'Content of post 2 by author 23.', 23, '2023-02-15 07:00:00');
