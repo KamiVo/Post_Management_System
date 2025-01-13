@@ -7,12 +7,15 @@ public class Post {
     private final int author;
     private String date;
 
-    public Post(int id, String title, String content, int author, String date) {
+    private final String authorName;
+
+    public Post(int id, String title, String content, int author, String date, String authorName) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.author = author;
         this.date = date;
+        this.authorName = authorName;
     }
 
     public int getId() {
@@ -37,6 +40,10 @@ public class Post {
 
     public int getAuthor() {
         return author;
+    }
+
+    public String getAuthorName() {
+        return authorName;
     }
 
     public String getDate() {

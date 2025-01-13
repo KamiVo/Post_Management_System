@@ -26,7 +26,7 @@ public class viewPost extends JPanel {
         }
 
         JList<Post> postList = new JList<>(listModel);
-        postList.setCellRenderer(new PostCellRenderer());
+        postList.setCellRenderer(new PostCellRenderer(authorId == -1));
         JScrollPane scrollPane = new JScrollPane(postList);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -37,7 +37,9 @@ public class viewPost extends JPanel {
 
     private List<Post> getPosts() {
         List<Post> posts = new ArrayList<>();
-        String query = authorId == -1 ? "SELECT id, title, content, author_id, date FROM posts" : "SELECT id, title, content, author_id, date FROM posts WHERE author_id = ?";
+        String query = authorId == -1 ?
+            "SELECT p.id, p.title, p.content, p.author_id, p.date, u.username FROM posts p JOIN user u ON p.author_id = u.id" :
+            "SELECT p.id, p.title, p.content, p.author_id, p.date, u.username FROM posts p JOIN user u ON p.author_id = u.id WHERE p.author_id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             if (authorId != -1) {
@@ -50,7 +52,8 @@ public class viewPost extends JPanel {
                     String content = resultSet.getString("content");
                     int authorId = resultSet.getInt("author_id");
                     String date = resultSet.getString("date");
-                    posts.add(new Post(id, title, content, authorId, date));
+                    String username = resultSet.getString("username");
+                    posts.add(new Post(id, title, content, authorId, date, username));
                 }
             }
         } catch (SQLException e) {
@@ -63,9 +66,12 @@ public class viewPost extends JPanel {
         private final JLabel idLabel;
         private final JLabel titleLabel;
         private final JLabel contentLabel;
+        private final JLabel authorLabel;
+        private final boolean isAdmin;
 
-        public PostCellRenderer() {
-            setLayout(new GridLayout(4, 1));
+        public PostCellRenderer(boolean isAdmin) {
+            this.isAdmin = isAdmin;
+            setLayout(new GridLayout(5, 1));
             setBackground(new Color(0x0079FF));
             setPreferredSize(new Dimension(250, 200));
             setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -73,10 +79,14 @@ public class viewPost extends JPanel {
             idLabel = createLabel();
             titleLabel = createLabel();
             contentLabel = createLabel();
+            authorLabel = createLabel();
 
             add(idLabel);
             add(titleLabel);
             add(contentLabel);
+            if (isAdmin) {
+                add(authorLabel);
+            }
         }
 
         private JLabel createLabel() {
@@ -91,6 +101,9 @@ public class viewPost extends JPanel {
             idLabel.setText("<html><span style='color:yellow;'>ID:</span> " + post.getId() + "</html>");
             titleLabel.setText("<html><span style='color:yellow;'>Title:</span> " + post.getTitle() + "</html>");
             contentLabel.setText("<html><span style='color:yellow;'>Content:</span> " + post.getContent() + "</html>");
+            if (isAdmin) {
+                authorLabel.setText("<html><span style='color:yellow;'>Author:</span> " + post.getAuthorName() + " (ID: " + post.getAuthor() + ")</html>");
+            }
 
             return this;
         }
