@@ -60,7 +60,7 @@ public class LoginRegisterGUI extends JFrame {
         JLabel titleLabel = new JLabel("Login");
         titleLabel.setFont(new Font("Roboto", Font.BOLD, 50));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setForeground(new Color(243, 33, 148)); // Modern blue color
+        titleLabel.setForeground(new Color(243, 33, 148));
 
         // Username Label
         JLabel userLabel = new JLabel("Username or Email:");
@@ -266,10 +266,13 @@ public class LoginRegisterGUI extends JFrame {
                 return false;
             }
 
-            String insertQuery = identifier.contains("@") ? "INSERT INTO user(email, username, password) VALUES(?, '', ?)" : "INSERT INTO user (username, email, password) VALUES(?, '', ?)";
+            String insertQuery = identifier.contains("@") ?
+                    "INSERT INTO user(email, username, password, avatar, role_id) VALUES(?, ?, ?, 'src/Resources/avatars/user.png', 2)" :
+                    "INSERT INTO user(username, email, password, avatar, role_id) VALUES(?, ?, ?, 'src/Resources/avatars/user.png', 2)";
             PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
             insertStatement.setString(1, identifier);
-            insertStatement.setString(2, password);
+            insertStatement.setString(2, identifier);
+            insertStatement.setString(3, password);
             insertStatement.executeUpdate();
             return true;
         } catch (SQLException e) {

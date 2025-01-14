@@ -17,16 +17,15 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 public class ManagePostsGUI extends JFrame {
-    private CardLayout cardLayout;
-    private JPanel mainRightPanel;
-    private CardLayout editPostCardLayout;
-    private JPanel editPostCardPanel;
-    private CardLayout deletePostCardLayout;
-    private JPanel deletePostCardPanel;
+    private final CardLayout cardLayout;
+    private final JPanel mainRightPanel;
+    private final CardLayout editPostCardLayout;
+    private final JPanel editPostCardPanel;
+    private final CardLayout deletePostCardLayout;
+    private final JPanel deletePostCardPanel;
     private boolean editAllSelected;
     private boolean deleteAllSelected;
     private viewPost viewPost;
@@ -120,6 +119,7 @@ public class ManagePostsGUI extends JFrame {
 
         String avatarPath = modifyAcc.getAvatarPathId(authorId);
         JLabel logo = createScaledLogo(avatarPath);
+
         JLabel userLabel = new JLabel(username);
         userLabel.setFont(new Font("Arial", Font.BOLD, 20));
         userLabel.setForeground(Color.WHITE);
@@ -788,6 +788,7 @@ public class ManagePostsGUI extends JFrame {
         JLabel avatarLabel = new JLabel();
         updateAvatarLabel(avatarLabel, avatarPath);
         avatarLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         avatarLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -795,14 +796,15 @@ public class ManagePostsGUI extends JFrame {
                 int result = fileChooser.showOpenDialog(null);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-                    String avatarPath = selectedFile.getAbsolutePath();
-                    // Generate a unique filename
-                    String uniqueFilename = authorId + "_" + UUID.randomUUID().toString() + modifyAcc.getFileExtension(selectedFile.getName());
-                    String destinationPath = "src/Resources/avatars/" + uniqueFilename;
+                    String fileExtension = modifyAcc.getFileExtension(selectedFile.getName());
+
+                    // Generate new filename based on author ID
+                    String uniqueFilename = authorId + fileExtension;
+                    String destinationPath = "src/Resources/avatars/" + uniqueFilename; // Destination path on server
 
                     // Delete previous avatar
                     String prevAvatarPath =  modifyAcc.getAvatarPathId(authorId);
-                    if (prevAvatarPath != null && !prevAvatarPath.equals("src/Resources/user.png") && !prevAvatarPath.isEmpty()) {
+                    if (prevAvatarPath != null && !prevAvatarPath.equals("src/Resources/avatars/user.png") && !prevAvatarPath.isEmpty()) {
                         File prevAvatarFile = new File(prevAvatarPath);
                         if(prevAvatarFile.exists()) {
                             prevAvatarFile.delete();
@@ -822,7 +824,6 @@ public class ManagePostsGUI extends JFrame {
                         avatarPath = modifyAcc.getAvatarPathId(authorId);
                         updateAvatarLabel(avatarLabel, avatarPath);
                     }
-                    // store the relative path to the database
                 }
             }
         });
@@ -832,7 +833,18 @@ public class ManagePostsGUI extends JFrame {
         usernameLabel.setForeground(Color.WHITE);
 
         JTextField usernameField = new JTextField(20);
-        usernameField.setText(username);
+
+        JLabel ageLabel = new JLabel("Age:");
+        ageLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        ageLabel.setForeground(Color.WHITE);
+
+        JTextField ageField = new JTextField(20);
+
+        JLabel homeTownLabel = new JLabel("Home Town:");
+        homeTownLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        homeTownLabel.setForeground(Color.WHITE);
+
+        JTextField homeTownField = new JTextField(20);
 
         JLabel oldPassLabel = new JLabel("Old Password:");
         oldPassLabel.setFont(new Font("Arial", Font.BOLD, 20));
@@ -848,55 +860,54 @@ public class ManagePostsGUI extends JFrame {
 
         JButton updateButton = createButton("Update");
         styleButton(updateButton, new Color(0xFF0404), Color.WHITE);
-        updateButton.addActionListener(e -> {
-            boolean updateSuccess;
-            try {
-                updateSuccess = handleUpdateAccount(username, usernameField.getText(), new String(oldPassField.getPassword()), new String(newPassField.getPassword()), avatarPath);
-                if(updateSuccess) {
-                    usernameField.setText("");
-                    oldPassField.setText("");
-                    newPassField.setText("");
-                } else {
-                    oldPassField.setText("");
-                    newPassField.setText("");
-                }
-            } catch (Exception ex) {
-                oldPassField.setText("");
-                newPassField.setText("");
+        updateButton.addActionListener(_ -> {
+            String newName = null;
+            String newHometown = null;
+            String newAge = null;
+            String oldPass = null;
+            String newPass = null;
+
+            // Get new values
+            if(!usernameField.getText().isEmpty()) {
+                newName = usernameField.getText();
             }
+            if(!homeTownField.getText().isEmpty()) {
+                newHometown = homeTownField.getText();
+            }
+            if(!ageField.getText().isEmpty()) {
+                newAge = ageField.getText();
+            }
+            if(!new String(newPassField.getPassword()).isEmpty() && !new String(oldPassField.getPassword()).isEmpty() && new String(newPassField.getPassword()).equals(new String(oldPassField.getPassword()))) {
+                oldPass = new String(oldPassField.getPassword());
+                newPass = new String(newPassField.getPassword());
+            }
+            handleUpdateAccount(username, newName, newHometown, newAge, oldPass, newPass, avatarPath);
+
+            // Clear fields
+            usernameField.setText("");
+            homeTownField.setText("");
+            ageField.setText("");
+            oldPassField.setText("");
+            newPassField.setText("");
         });
 
         newPassField.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                     updateButton.doClick();
-                    boolean updateSuccess;
-                    try {
-                        updateSuccess = handleUpdateAccount(username, usernameField.getText(), new String(oldPassField.getPassword()), new String(newPassField.getPassword()), avatarPath);
-                        if(updateSuccess) {
-                            usernameField.setText("");
-                            oldPassField.setText("");
-                            newPassField.setText("");
-                        } else {
-                            oldPassField.setText("");
-                            newPassField.setText("");
-                        }
-                    } catch (Exception ex) {
-                        oldPassField.setText("");
-                        newPassField.setText("");
-                    }
                 }
             }
         });
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridwidth = 3;
         panel.add(avatarLabel, gbc);
 
-        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.EAST;
         panel.add(usernameLabel, gbc);
@@ -905,8 +916,27 @@ public class ManagePostsGUI extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(usernameField, gbc);
 
-        gbc.gridy++;
         gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(ageLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(ageField, gbc);
+
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(homeTownLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(homeTownField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.EAST;
         panel.add(oldPassLabel, gbc);
 
@@ -914,8 +944,8 @@ public class ManagePostsGUI extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(oldPassField, gbc);
 
-        gbc.gridy++;
         gbc.gridx = 0;
+        gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.EAST;
         panel.add(newPassLabel, gbc);
 
@@ -923,10 +953,11 @@ public class ManagePostsGUI extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(newPassField, gbc);
 
-        gbc.gridy++;
-        gbc.gridx = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
         panel.add(updateButton, gbc);
-
         return panel;
     }
     private static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
@@ -945,24 +976,27 @@ public class ManagePostsGUI extends JFrame {
         avatarLabel.setIcon(new ImageIcon(avatarImage));
     }
 
-    private boolean handleUpdateAccount(String currentUsername, String newUsername, String oldPassword, String newPassword, String avatarPath) {
-        if(newUsername.isEmpty() && oldPassword.isEmpty() && newPassword.isEmpty() && avatarPath.isEmpty()) {
+    private void handleUpdateAccount(String currentUsername, String newUsername, String newHometown, String newAge,String oldPassword, String newPassword, String avatarPath) {
+        if(newUsername == null && newHometown == null && newAge == null && oldPassword == null && newPassword == null && avatarPath == null) {
             JOptionPane.showMessageDialog(this, "Please fill in at least one field", "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
+            return;
         }
 
         try {
-            boolean success = new modifyAcc().modifyAcc(authorId, currentUsername, newUsername, oldPassword, newPassword, avatarPath);
+            Integer age = null;
+            if (newAge != null && !newAge.isEmpty()){
+                age = Integer.parseInt(newAge);
+            }
+
+            boolean success = new modifyAcc().modifyAcc(authorId, currentUsername, newUsername, newHometown, age, oldPassword, newPassword, avatarPath);
+
             if(success) {
                 JOptionPane.showMessageDialog(this, "Account updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                return true;
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to update account", "Error", JOptionPane.ERROR_MESSAGE);
-                return false;
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Failed to update account: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
         }
     }
 

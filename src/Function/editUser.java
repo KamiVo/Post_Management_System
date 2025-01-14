@@ -17,6 +17,19 @@ public class editUser {
             connection.setAutoCommit(false);
 
             if (newName != null) {
+                // Check if the new username is equal to the old username
+                String sqlCheckUsername = "SELECT username FROM user WHERE id = ?";
+                preparedStatement = connection.prepareStatement(sqlCheckUsername);
+                preparedStatement.setInt(1, id);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    String oldName = resultSet.getString("username");
+                    if (newName.equals(oldName)) {
+                        JOptionPane.showMessageDialog(null, "New username cannot be the same as the old username", "Error", JOptionPane.ERROR_MESSAGE);
+                        return false;
+                    }
+                }
+
                 String sqlUpdateUserUsername = "UPDATE user SET username = ? WHERE id = ?";
                 preparedStatement = connection.prepareStatement(sqlUpdateUserUsername);
                 preparedStatement.setString(1, newName);
@@ -28,6 +41,7 @@ public class editUser {
                 }
                 success = true;
             }
+
             // Handle all combinations of user_details updates
             if (newHometown != null && newAge != null) {
                 String sqlDetails = "UPDATE user_details SET hometown = ?, age = ? WHERE id = ?";
