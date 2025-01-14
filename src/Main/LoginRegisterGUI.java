@@ -266,14 +266,32 @@ public class LoginRegisterGUI extends JFrame {
                 return false;
             }
 
+            // Insert new user
             String insertQuery = identifier.contains("@") ?
                     "INSERT INTO user(email, username, password, avatar, role_id) VALUES(?, ?, ?, 'src/Resources/avatars/user.png', 2)" :
                     "INSERT INTO user(username, email, password, avatar, role_id) VALUES(?, ?, ?, 'src/Resources/avatars/user.png', 2)";
-            PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
+            PreparedStatement insertStatement = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
             insertStatement.setString(1, identifier);
             insertStatement.setString(2, identifier);
             insertStatement.setString(3, password);
             insertStatement.executeUpdate();
+
+            int userId = 0;
+            try (ResultSet generatedKeys = insertStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    userId = generatedKeys.getInt(1);
+                }
+                else {
+                    throw new SQLException("Creating user failed, no ID obtained.");
+                }
+            }
+
+            // Auto add Age and Hometown Column in user_details table
+            String insertQuery2 = "INSERT INTO user_details(id,age, hometown) VALUES (?, 0, 'Unknown')";
+            PreparedStatement insertStatement2 = connection.prepareStatement(insertQuery2);
+            insertStatement2.setInt(1, userId);
+            insertStatement2.executeUpdate();
+
             return true;
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Registration failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

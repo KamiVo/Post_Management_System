@@ -16,7 +16,7 @@ CREATE TABLE user (
     email VARCHAR(255),
     password VARCHAR(255) NOT NULL,
     role_id INT,
-    avatar LONGBLOB,
+    avatar VARCHAR(255) DEFAULT 'src/Resources/avatar/user.png',
     FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 

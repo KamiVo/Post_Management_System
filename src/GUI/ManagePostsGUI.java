@@ -991,6 +991,10 @@ public class ManagePostsGUI extends JFrame {
             boolean success = new modifyAcc().modifyAcc(authorId, currentUsername, newUsername, newHometown, age, oldPassword, newPassword, avatarPath);
 
             if(success) {
+                if(!currentUsername.equals(newUsername)) {
+                    new ManagePostsGUI(newUsername).setVisible(true);
+                    dispose();
+                }
                 JOptionPane.showMessageDialog(this, "Account updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to update account", "Error", JOptionPane.ERROR_MESSAGE);

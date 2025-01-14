@@ -76,33 +76,32 @@ public class modifyAcc {
                 success = true;
             }
 
-            // Update the user_details table
-            if (newHometown != null && newAge != null) {
-                String sqlDetails = "UPDATE user_details SET hometown = ?, age = ? WHERE id = ?";
-                preparedStatement = connection.prepareStatement(sqlDetails);
-                preparedStatement.setString(1, newHometown);
-                preparedStatement.setInt(2, newAge);
-                preparedStatement.setInt(3, id);
-            } else if (newHometown != null) {
-                String sqlDetails = "UPDATE user_details SET hometown = ? WHERE id = ?";
-                preparedStatement = connection.prepareStatement(sqlDetails);
+            // Update the hometown
+            if (newHometown != null && !newHometown.isEmpty()) {
+                String sqlUpdateUserHometown = "UPDATE user_details SET hometown = ? WHERE id = ?";
+                preparedStatement = connection.prepareStatement(sqlUpdateUserHometown);
                 preparedStatement.setString(1, newHometown);
                 preparedStatement.setInt(2, id);
-            } else if (newAge != null) {
-                String sqlDetails = "UPDATE user_details SET age = ? WHERE id = ?";
-                preparedStatement = connection.prepareStatement(sqlDetails);
-                preparedStatement.setInt(1, newAge);
-                preparedStatement.setInt(2, id);
-            }
-
-            if (newHometown != null || newAge != null) {
                 int rowsAffected = preparedStatement.executeUpdate();
-                if (rowsAffected > 0) {
-                    success = true;
-                } else {
+                if (rowsAffected <= 0) {
                     connection.rollback();
                     return false;
                 }
+                success = true;
+            }
+
+            // Update the age
+            if (newAge != null) {
+                String sqlUpdateUserAge = "UPDATE user_details SET age = ? WHERE id = ?";
+                preparedStatement = connection.prepareStatement(sqlUpdateUserAge);
+                preparedStatement.setInt(1, newAge);
+                preparedStatement.setInt(2, id);
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected <= 0) {
+                    connection.rollback();
+                    return false;
+                }
+                success = true;
             }
 
             // Update the avatar
@@ -166,55 +165,6 @@ public class modifyAcc {
             }
         }
     }
-
-//    private void updatePassword(Connection connection, int id, String newPassword) throws SQLException {
-//        String updateQuery = "UPDATE user SET password = ? WHERE id = ?";
-//        try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
-//            preparedStatement.setString(1, newPassword);
-//            preparedStatement.setInt(2, id);
-//            preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            JOptionPane.showMessageDialog(null, "Failed to update password: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-//        }
-//    }
-
-//    private void updateUsername(Connection connection, int id, String oldUsername, String newUsername) throws SQLException {
-//        String updateQuery = "UPDATE user SET username = ? WHERE id = ?";
-//        try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
-//            preparedStatement.setString(1, newUsername);
-//            preparedStatement.setString(2, oldUsername);
-//            preparedStatement.setInt(3, id);
-//            preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            JOptionPane.showMessageDialog(null, "Failed to update username: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-//        }
-//    }
-
-//    private void updateAvatar(Connection connection, int id, String avatarPath) throws SQLException, IOException {
-//        String oldAvatarPath = getAvatarPathId(id);
-//        String newAvatarPath = AVATAR_DIR + id + getFileExtension(avatarPath);
-//
-//        // Copy new avatar to the avatars directory
-//        Files.copy(new File(avatarPath).toPath(), new File(newAvatarPath).toPath(), StandardCopyOption.REPLACE_EXISTING);
-//
-//        // Update the database with the new avatar path
-//        String updateQuery = "UPDATE user SET avatar = ? WHERE id = ?";
-//        try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
-//            preparedStatement.setString(1, newAvatarPath);
-//            preparedStatement.setInt(2, id);
-//            preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            JOptionPane.showMessageDialog(null, "Failed to update avatar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-//        }
-//
-//        // Delete the old avatar if it exists and is not the default one
-//        if (oldAvatarPath != null && !oldAvatarPath.equals("src/Resources/avatars/user.png") && !oldAvatarPath.isEmpty()) {
-//            File oldAvatarFile = new File(oldAvatarPath);
-//            if (oldAvatarFile.exists()) {
-//                oldAvatarFile.delete();
-//            }
-//        }
-//    }
 
     public static String getAvatarPathId(int id) {
         String query = "SELECT avatar FROM user WHERE id = ?";
